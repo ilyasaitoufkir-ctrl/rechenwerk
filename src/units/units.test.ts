@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { dimensions, dynamicToKinematic, kinematicToDynamic } from './index'
+import { dimensions, dynamicToKinematic, kinematicToDynamic, umrechnen, alleEinheiten } from './index'
 
 describe('Einheiten: Rundreise (toSI dann fromSI ergibt Ausgangswert)', () => {
   for (const dim of Object.values(dimensions)) {
@@ -95,5 +95,34 @@ describe('Dynamisch <-> kinematisch über ν = η / ρ', () => {
   it('wirft Fehler bei Dichte <= 0', () => {
     expect(() => dynamicToKinematic(0.001, 0)).toThrow()
     expect(() => dynamicToKinematic(0.001, -1)).toThrow()
+  })
+})
+
+describe('umrechnen (dimensionssuchende generische Einheitenumrechnung)', () => {
+  it('findet die Dimension automatisch: 1 bar -> Pa', () => {
+    const r = umrechnen(1, 'bar', 'Pa')
+    expect(r.dimension).toBe('pressure')
+    expect(r.ergebnis).toBeCloseTo(100000, 3)
+  })
+
+  it('1000 l -> m3', () => {
+    const r = umrechnen(1000, 'l', 'm3')
+    expect(r.dimension).toBe('volume')
+    expect(r.ergebnis).toBeCloseTo(1, 9)
+  })
+
+  it('akzeptiert eine explizit vorgegebene Dimension', () => {
+    const r = umrechnen(1, 'bar', 'Pa', 'pressure')
+    expect(r.ergebnis).toBeCloseTo(100000, 3)
+  })
+
+  it('wirft Fehler, wenn keine gemeinsame Dimension existiert', () => {
+    expect(() => umrechnen(1, 'bar', 'kg')).toThrow()
+  })
+
+  it('alleEinheiten liefert für jede Dimension mindestens eine Einheit', () => {
+    for (const d of alleEinheiten()) {
+      expect(d.units.length).toBeGreaterThan(0)
+    }
   })
 })

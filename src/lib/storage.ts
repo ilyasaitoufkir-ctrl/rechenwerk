@@ -3,6 +3,7 @@
  * ohne verfügbaren Storage (z. B. privater Modus, Quota überschritten) voll
  * funktionieren - dann eben ohne Persistenz.
  */
+import type Anthropic from '@anthropic-ai/sdk'
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -29,6 +30,9 @@ const KEYS = {
   signifikanteStellen: 'rechenwerk:signifikante-stellen',
   letzteEingaben: 'rechenwerk:letzte-eingaben',
   ambientDruck: 'rechenwerk:ambient-druck',
+  kiZugangscode: 'rechenwerk:ki-zugangscode',
+  kiKonversationen: 'rechenwerk:ki-konversationen',
+  kiNutzung: 'rechenwerk:ki-nutzung',
 } as const
 
 export function getFavoriten(): string[] {
@@ -146,4 +150,84 @@ export function getAmbientDruckPa(): number {
 
 export function setAmbientDruckPa(pa: number): void {
   write(KEYS.ambientDruck, pa)
+}
+
+/** Persönlicher Zugangscode für den KI-Assistenten - NICHT der API-Schlüssel, der bleibt serverseitig in Vercel. */
+export function getKiZugangscode(): string {
+  return read<string>(KEYS.kiZugangscode, '')
+}
+
+export function setKiZugangscode(code: string): void {
+  write(KEYS.kiZugangscode, code.trim())
+}
+
+export interface KiKonversation {
+  id: string
+  titel: string
+  erstelltAm: number
+  aktualisiertAm: number
+  /** Anthropic.MessageParam[] - wird unverändert als "messages" an /api/assistent gesendet. */
+  nachrichten: Anthropic.MessageParam[]
+}
+
+const MAX_KI_KONVERSATIONEN = 20
+
+export function getKiKonversationen(): KiKonversation[] {
+  return read<KiKonversation[]>(KEYS.kiKonversationen, [])
+}
+
+export function getKiKonversation(id: string): KiKonversation | undefined {
+  return getKiKonversationen().find((k) => k.id === id)
+}
+
+export function kiKonversationSpeichern(konversation: KiKonversation): KiKonversation[] {
+  const andere = getKiKonversationen().filter((k) => k.id !== konversation.id)
+  const neue = [{ ...konversation, aktualisiertAm: Date.now() }, ...andere]
+    .sort((a, b) => b.aktualisiertAm - a.aktualisiertAm)
+    .slice(0, MAX_KI_KONVERSATIONEN)
+  write(KEYS.kiKonversationen, neue)
+  return neue
+}
+
+export function kiKonversationLoeschen(id: string): KiKonversation[] {
+  const neue = getKiKonversationen().filter((k) => k.id !== id)
+  write(KEYS.kiKonversationen, neue)
+  return neue
+}
+
+export interface KiNutzung {
+  anfragen: number
+  inputTokens: number
+  outputTokens: number
+  cacheReadTokens: number
+  cacheWriteTokens: number
+}
+
+const KI_NUTZUNG_LEER: KiNutzung = {
+  anfragen: 0,
+  inputTokens: 0,
+  outputTokens: 0,
+  cacheReadTokens: 0,
+  cacheWriteTokens: 0,
+}
+
+export function getKiNutzung(): KiNutzung {
+  return read<KiNutzung>(KEYS.kiNutzung, KI_NUTZUNG_LEER)
+}
+
+export function kiNutzungHinzufuegen(delta: Omit<KiNutzung, 'anfragen'>): KiNutzung {
+  const aktuelle = getKiNutzung()
+  const neue: KiNutzung = {
+    anfragen: aktuelle.anfragen + 1,
+    inputTokens: aktuelle.inputTokens + delta.inputTokens,
+    outputTokens: aktuelle.outputTokens + delta.outputTokens,
+    cacheReadTokens: aktuelle.cacheReadTokens + delta.cacheReadTokens,
+    cacheWriteTokens: aktuelle.cacheWriteTokens + delta.cacheWriteTokens,
+  }
+  write(KEYS.kiNutzung, neue)
+  return neue
+}
+
+export function kiNutzungZuruecksetzen(): void {
+  write(KEYS.kiNutzung, KI_NUTZUNG_LEER)
 }

@@ -23,6 +23,7 @@ const Fehlerfortpflanzung = lazy(() =>
   import('./pages/Fehlerfortpflanzung').then((m) => ({ default: m.Fehlerfortpflanzung })),
 )
 const McCabeThiele = lazy(() => import('./pages/McCabeThiele').then((m) => ({ default: m.McCabeThiele })))
+const Assistent = lazy(() => import('./pages/Assistent').then((m) => ({ default: m.Assistent })))
 const CalculatorPage = lazy(() =>
   import('./pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })),
 )
@@ -59,6 +60,8 @@ function Seite() {
       return <Fehlerfortpflanzung />
     case 'mccabe-thiele':
       return <McCabeThiele />
+    case 'assistent':
+      return <Assistent />
     case 'formel':
       return <CalculatorPage id={route.id} />
   }

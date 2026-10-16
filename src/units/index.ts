@@ -371,6 +371,47 @@ export function fromSI(value: number, dimension: DimensionId, unitId: string): n
   return getUnit(dimension, unitId).fromSI(value)
 }
 
+export interface UmrechnungsErgebnis {
+  wertSI: number
+  ergebnis: number
+  dimension: DimensionId
+}
+
+/**
+ * Rechnet einen Wert zwischen zwei Einheiten um. Sucht die gemeinsame
+ * Dimension automatisch, sofern nicht eindeutig angegeben - für Fälle wie
+ * den KI-Assistenten, der nur Einheiten-IDs ohne Dimension kennt.
+ */
+export function umrechnen(
+  wert: number,
+  von: string,
+  nach: string,
+  dimension?: DimensionId,
+): UmrechnungsErgebnis {
+  const kandidaten: DimensionId[] = dimension
+    ? [dimension]
+    : (Object.keys(dimensions) as DimensionId[]).filter(
+        (d) =>
+          dimensions[d].units.some((u) => u.id === von) &&
+          dimensions[d].units.some((u) => u.id === nach),
+      )
+  if (kandidaten.length === 0) {
+    throw new Error(`Keine gemeinsame Dimension für die Einheiten "${von}" und "${nach}" gefunden.`)
+  }
+  const dim = kandidaten[0]
+  const wertSI = toSI(wert, dim, von)
+  return { wertSI, ergebnis: fromSI(wertSI, dim, nach), dimension: dim }
+}
+
+/** Übersicht aller Dimensionen mit ihren Einheiten-IDs - z. B. für Werkzeugbeschreibungen. */
+export function alleEinheiten(): { dimension: DimensionId; label: string; units: { id: string; label: string }[] }[] {
+  return (Object.keys(dimensions) as DimensionId[]).map((d) => ({
+    dimension: d,
+    label: dimensions[d].label,
+    units: dimensions[d].units.map((u) => ({ id: u.id, label: u.label })),
+  }))
+}
+
 /** ν = η / ρ: dynamische Viskosität (Pa·s) + Dichte (kg/m³) -> kinematische Viskosität (m²/s) */
 export function dynamicToKinematic(etaPas: number, rhoKgM3: number): number {
   if (rhoKgM3 <= 0) throw new Error('Dichte muss größer 0 sein')

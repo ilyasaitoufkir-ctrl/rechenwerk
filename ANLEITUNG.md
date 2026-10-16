@@ -227,6 +227,33 @@ Richtwert gekennzeichnet, wenn die Werte streuen. Bei Unsicherheit über die
 genaue Kapitel-/Tabellennummer: `quelle.unsicher = true` setzen statt eine
 Seitenzahl zu erfinden.
 
+## KI-Assistent (Werkzeuge auf Basis der Registry)
+
+Der Assistent (`src/pages/Assistent.tsx`) rechnet nie selbst - er ruft
+ausschließlich Werkzeuge auf, die gegen die bestehende Formel-Registry und
+Datentabellen arbeiten. Eine neue Formel oder Datentabelle ist damit
+automatisch auch für den Assistenten nutzbar, ohne dass dort etwas
+angepasst werden muss:
+
+- `src/lib/ki-werkzeuge.ts` definiert die 5 Werkzeuge (`formeln_suchen`,
+  `formel_details`, `formel_berechnen`, `einheit_umrechnen`,
+  `stoffdaten_abfragen`) und führt sie clientseitig aus - `formel_berechnen`
+  ruft dabei exakt denselben `formel.compute()` wie der normale Rechner auf,
+  nur mit Werten aus dem Werkzeugaufruf statt aus Eingabefeldern.
+- `src/lib/ki-client.ts` orchestriert den Werkzeugaufruf-Loop (max. 8
+  Runden) und spricht dafür `api/assistent.ts` an.
+- `api/assistent.ts` ist eine Vercel Serverless Function und bewusst ein
+  reiner Proxy zur Anthropic Messages API: keine Formellogik, nur
+  Zugangscode-Prüfung, Größenlimits und Weiterleitung der vom Client
+  mitgeschickten Werkzeugdefinitionen. Der API-Schlüssel
+  (`ANTHROPIC_API_KEY`) und der Zugangscode (`APP_ACCESS_TOKEN`) liegen
+  ausschließlich als Vercel-Umgebungsvariablen vor, nie im Frontend.
+
+Bei Druckgeräte-Formeln gibt `formel_berechnen` den `DRUCKGERAETE_HINWEIS`
+in jedem Ergebnis mit zurück, und der System-Prompt weist das Modell an,
+ihn zu wiederholen - derselbe Pflichthinweis wie im Rechner, nur über eine
+zweite Stelle (System-Prompt + Werkzeugergebnis statt Banner) sichergestellt.
+
 ## Wichtigstes Prinzip
 
 Lieber eine Formel weniger als eine falsche oder ungeprüfte. Jede Formel

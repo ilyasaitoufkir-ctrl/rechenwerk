@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Home, Library, Ruler, History, ListChecks } from 'lucide-react'
+import { Home, Library, Ruler, History, ListChecks, Bot } from 'lucide-react'
 import { navigiere, useRoute, type Route } from '../lib/router'
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 const NAV_ITEMS: { route: Route; label: string; icon: typeof Home }[] = [
   { route: { name: 'home' }, label: 'Start', icon: Home },
   { route: { name: 'bibliothek' }, label: 'Bibliothek', icon: Library },
+  { route: { name: 'assistent' }, label: 'Assistent', icon: Bot },
   { route: { name: 'einheiten' }, label: 'Einheiten', icon: Ruler },
   { route: { name: 'verlauf' }, label: 'Verlauf', icon: History },
   { route: { name: 'pruefliste' }, label: 'Prüfen', icon: ListChecks },

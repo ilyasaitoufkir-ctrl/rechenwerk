@@ -1,10 +1,10 @@
 import type { Quelle } from '../types/formula'
-import { rauheitsQuelle } from './roughness'
-import { pipesDin11850Quelle } from './pipes-din11850'
-import { fittingsQuelle } from './fittings'
-import { stoffdatenQuelle } from './stoffdaten-waerme'
-import { emissionsfaktorenQuelle } from './emissionsfaktoren'
-import { werkstoffdichtenQuelle } from './werkstoffdichten'
+import { rauheitsQuelle, rauheitstabelle } from './roughness'
+import { pipesDin11850Quelle, din11850Reihe2 } from './pipes-din11850'
+import { fittingsQuelle, einbauten } from './fittings'
+import { stoffdatenQuelle, stoffdatenWaerme } from './stoffdaten-waerme'
+import { emissionsfaktorenQuelle, emissionsfaktoren } from './emissionsfaktoren'
+import { werkstoffdichtenQuelle, werkstoffdichten } from './werkstoffdichten'
 
 export interface DatenTabelle {
   id: string
@@ -26,3 +26,30 @@ export const alleDatenTabellen: DatenTabelle[] = [
   { id: 'tabelle-emissionsfaktoren', name: 'CO₂-Emissionsfaktoren', kategorie: 'Energie & Kosten', quelle: emissionsfaktorenQuelle },
   { id: 'tabelle-werkstoffdichten', name: 'Werkstoffdichten', kategorie: 'Behälter & Geometrie', quelle: werkstoffdichtenQuelle },
 ]
+
+const ZEILEN: Record<string, readonly unknown[]> = {
+  'tabelle-rauheit': rauheitstabelle,
+  'tabelle-din11850': din11850Reihe2,
+  'tabelle-einbauten': einbauten,
+  'tabelle-stoffdaten-waerme': stoffdatenWaerme,
+  'tabelle-emissionsfaktoren': emissionsfaktoren,
+  'tabelle-werkstoffdichten': werkstoffdichten,
+}
+
+export function getDatenTabelle(id: string): DatenTabelle | undefined {
+  return alleDatenTabellen.find((t) => t.id === id)
+}
+
+/**
+ * Liefert die Zeilen einer Datentabelle, optional nach einem Suchbegriff
+ * gefiltert (einfache Freitextsuche über alle Feldwerte der Zeile) - z. B.
+ * für den KI-Assistenten, der nicht auf eine konkrete Zeilenstruktur
+ * zugeschnitten sein kann.
+ */
+export function getZeilen(id: string, suchbegriff?: string): unknown[] {
+  const zeilen = ZEILEN[id]
+  if (!zeilen) throw new Error(`Unbekannte Datentabelle "${id}"`)
+  if (!suchbegriff?.trim()) return [...zeilen]
+  const q = suchbegriff.trim().toLowerCase()
+  return zeilen.filter((z) => JSON.stringify(z).toLowerCase().includes(q))
+}

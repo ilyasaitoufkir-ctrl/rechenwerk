@@ -13,6 +13,7 @@ export type Route =
   | { name: 'regression' }
   | { name: 'fehlerfortpflanzung' }
   | { name: 'mccabe-thiele' }
+  | { name: 'assistent' }
   | { name: 'formel'; id: string }
 
 const EINFACHE_ROUTEN = [
@@ -27,6 +28,7 @@ const EINFACHE_ROUTEN = [
   'regression',
   'fehlerfortpflanzung',
   'mccabe-thiele',
+  'assistent',
 ] as const
 
 function parseHash(hash: string): Route {
