@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import handler from './assistent'
+import handler from './assistent.js'
 
 interface AufgezeichneteAntwort {
   status?: number

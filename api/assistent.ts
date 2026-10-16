@@ -11,7 +11,7 @@
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Anthropic from '@anthropic-ai/sdk'
-import { DRUCKGERAETE_HINWEIS } from '../src/formulas/druckgeraete/hinweis'
+import { DRUCKGERAETE_HINWEIS } from '../src/formulas/druckgeraete/hinweis.js'
 import { createHash, timingSafeEqual } from 'node:crypto'
 
 const MAX_BODY_BYTES = 6_000_000
