@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Blaugrau - primärer Akzent */
+  --color-accent-50: #f3f6f6;
+  --color-accent-100: #e2e9ea;
+  --color-accent-200: #c7d4d6;
+  --color-accent-300: #a3b6ba;
+  --color-accent-400: #7b979d;
+  --color-accent-500: #5c7d84;
+  --color-accent-600: #48656c;
+  --color-accent-700: #3b5157;
+  --color-accent-800: #304246;
+  --color-accent-900: #28363a;
+
+  /* Salbei - sekundärer Akzent (Verifiziert, Erfolg) */
+  --color-sage-50: #f4f7f3;
+  --color-sage-100: #e5ebe1;
+  --color-sage-200: #cbd9c4;
+  --color-sage-300: #a9c09d;
+  --color-sage-400: #87a677;
+  --color-sage-500: #6c8c5c;
+  --color-sage-600: #557049;
+  --color-sage-700: #44593c;
+  --color-sage-800: #384733;
+  --color-sage-900: #2f3b2b;
+
+  /* Warme helle Flächen */
+  --color-paper-50: #fdfcfa;
+  --color-paper-100: #faf8f4;
+  --color-paper-200: #f1ede4;
+  --color-paper-300: #e5dfd2;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  margin: 0;
+  overscroll-behavior-y: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-paper-50);
+  color: #262320;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #17191a;
+    color: #e7e4de;
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background-color: var(--color-accent-200);
+}
+
+@media (prefers-color-scheme: dark) {
+  ::selection {
+    background-color: var(--color-accent-700);
+  }
+}
+
+/* KaTeX darf nie die Seite horizontal sprengen - eigener Scrollcontainer */
+.katex-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.katex-scroll .katex-display {
+  margin: 0;
+}
