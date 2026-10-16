@@ -31,6 +31,26 @@ import { statischeAmortisation } from './energie-kosten/statische-amortisation'
 import { kapitalwert } from './energie-kosten/kapitalwert'
 import { annuitaet } from './energie-kosten/annuitaet'
 import { internerZinsfuss } from './energie-kosten/interner-zinsfuss'
+import { foerderhoeheMessung } from './pumpen/foerderhoehe-messung'
+import { pumpenleistung } from './pumpen/pumpenleistung'
+import { npsh } from './pumpen/npsh'
+import { verdraengerpumpe } from './pumpen/verdraengerpumpe'
+import { affinitaetsgesetze } from './pumpen/affinitaetsgesetze'
+import { drehzahlDrosselVergleich } from './pumpen/drehzahl-drossel-vergleich'
+import { dosierKalibrierung } from './dosierung-mischen/dosier-kalibrierung'
+import { mischungMassenbilanz } from './dosierung-mischen/mischung-massenbilanz'
+import { mischungskreuz } from './dosierung-mischen/mischungskreuz'
+import { verduennung } from './dosierung-mischen/verduennung'
+import { mischtemperatur } from './dosierung-mischen/mischtemperatur'
+import { volumenZylinder } from './geometrie/volumen-zylinder'
+import { volumenKegelstumpf } from './geometrie/volumen-kegelstumpf'
+import { volumenKugel } from './geometrie/volumen-kugel'
+import { volumenQuader } from './geometrie/volumen-quader'
+import { liegenderZylinderTeilfuellung } from './geometrie/liegender-zylinder-teilfuellung'
+import { stehenderZylinderFuellstand } from './geometrie/stehender-zylinder-fuellstand'
+import { blechgewichtKreisflaeche } from './geometrie/blechgewicht-kreisflaeche'
+import { blechgewichtZylindermantel } from './geometrie/blechgewicht-zylindermantel'
+import { blechgewichtKegelstumpfmantel } from './geometrie/blechgewicht-kegelstumpfmantel'
 
 /**
  * Formel-Registry: eine neue Formel hinzuzufügen heißt, hier einen Import
@@ -70,6 +90,26 @@ export const alleFormeln: Formula[] = [
   kapitalwert,
   annuitaet,
   internerZinsfuss,
+  foerderhoeheMessung,
+  pumpenleistung,
+  npsh,
+  verdraengerpumpe,
+  affinitaetsgesetze,
+  drehzahlDrosselVergleich,
+  dosierKalibrierung,
+  mischungMassenbilanz,
+  mischungskreuz,
+  verduennung,
+  mischtemperatur,
+  volumenZylinder,
+  volumenKegelstumpf,
+  volumenKugel,
+  volumenQuader,
+  liegenderZylinderTeilfuellung,
+  stehenderZylinderFuellstand,
+  blechgewichtKreisflaeche,
+  blechgewichtZylindermantel,
+  blechgewichtKegelstumpfmantel,
 ]
 
 export function getFormel(id: string): Formula | undefined {

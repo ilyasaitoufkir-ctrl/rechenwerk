@@ -4,6 +4,7 @@ import { pipesDin11850Quelle } from './pipes-din11850'
 import { fittingsQuelle } from './fittings'
 import { stoffdatenQuelle } from './stoffdaten-waerme'
 import { emissionsfaktorenQuelle } from './emissionsfaktoren'
+import { werkstoffdichtenQuelle } from './werkstoffdichten'
 
 export interface DatenTabelle {
   id: string
@@ -23,4 +24,5 @@ export const alleDatenTabellen: DatenTabelle[] = [
   { id: 'tabelle-einbauten', name: 'Widerstandsbeiwerte Einbauten', kategorie: 'Strömung & Rohrleitungen', quelle: fittingsQuelle },
   { id: 'tabelle-stoffdaten-waerme', name: 'Stoffdaten Wärmeübertragung', kategorie: 'Wärmeübertragung', quelle: stoffdatenQuelle },
   { id: 'tabelle-emissionsfaktoren', name: 'CO₂-Emissionsfaktoren', kategorie: 'Energie & Kosten', quelle: emissionsfaktorenQuelle },
+  { id: 'tabelle-werkstoffdichten', name: 'Werkstoffdichten', kategorie: 'Behälter & Geometrie', quelle: werkstoffdichtenQuelle },
 ]

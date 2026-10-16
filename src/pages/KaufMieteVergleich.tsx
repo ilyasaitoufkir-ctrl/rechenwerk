@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { WarningBanner } from '../components/WarningBanner'
+import { LineChart } from '../components/LineChart'
 
 interface Eingaben {
   kaufpreis: string
@@ -114,7 +115,23 @@ export function KaufMieteVergleich() {
         <WarningBanner nachrichten={['Bitte alle Werte als gültige Zahlen eingeben.']} variante="info" />
       )}
 
-      {werte && <Diagramm kauf={werte.kauf} miete={werte.miete} n={werte.n} />}
+      {werte && (
+        <LineChart
+          ariaLabel="Kumulierter Kostenverlauf Kauf gegen Miete"
+          reihen={[
+            {
+              label: 'Kauf',
+              farbe: '#48656c',
+              punkte: werte.kauf.map((v, t) => ({ x: t, y: v })),
+            },
+            {
+              label: 'Miete',
+              farbe: '#6c8c5c',
+              punkte: werte.miete.map((v, t) => ({ x: t, y: v })),
+            },
+          ]}
+        />
+      )}
 
       {werte && (
         <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
@@ -154,74 +171,6 @@ export function KaufMieteVergleich() {
           <li>Restwert fließt am Ende der Nutzungsdauer einmalig als Ertrag ein</li>
           <li>Alle künftigen Zahlungen mit dem Kalkulationszins auf heute abgezinst</li>
         </ul>
-      </div>
-    </div>
-  )
-}
-
-function Diagramm({ kauf, miete, n }: { kauf: number[]; miete: number[]; n: number }) {
-  const width = 600
-  const height = 300
-  const padding = { top: 16, right: 16, bottom: 28, left: 56 }
-  const plotW = width - padding.left - padding.right
-  const plotH = height - padding.top - padding.bottom
-
-  const alleWerte = [...kauf, ...miete]
-  const yMin = Math.min(0, ...alleWerte)
-  const yMax = Math.max(...alleWerte)
-  const ySpan = yMax - yMin || 1
-
-  function x(t: number) {
-    return padding.left + (t / n) * plotW
-  }
-  function y(v: number) {
-    return padding.top + plotH - ((v - yMin) / ySpan) * plotH
-  }
-
-  function pfad(werte: number[]) {
-    return werte.map((v, t) => `${t === 0 ? 'M' : 'L'} ${x(t).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')
-  }
-
-  const yTicks = 4
-  const tickWerte = Array.from({ length: yTicks + 1 }, (_, i) => yMin + (ySpan * i) / yTicks)
-
-  return (
-    <div className="rounded-xl border border-paper-300 bg-white p-2 dark:border-white/10 dark:bg-white/5">
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" role="img" aria-label="Kumulierter Kostenverlauf Kauf gegen Miete">
-        {tickWerte.map((v, i) => (
-          <g key={i}>
-            <line
-              x1={padding.left}
-              x2={width - padding.right}
-              y1={y(v)}
-              y2={y(v)}
-              className="stroke-paper-200 dark:stroke-white/10"
-              strokeWidth={1}
-            />
-            <text x={padding.left - 8} y={y(v) + 4} textAnchor="end" fontSize={11} className="fill-stone-500 dark:fill-stone-400">
-              {formatNumber(v, 2)}
-            </text>
-          </g>
-        ))}
-        {Array.from({ length: n + 1 }, (_, t) => t)
-          .filter((t) => n <= 12 || t % Math.ceil(n / 12) === 0)
-          .map((t) => (
-            <text key={t} x={x(t)} y={height - padding.bottom + 16} textAnchor="middle" fontSize={11} className="fill-stone-500 dark:fill-stone-400">
-              {t}
-            </text>
-          ))}
-        <path d={pfad(kauf)} fill="none" stroke="#48656c" strokeWidth={2.5} />
-        <path d={pfad(miete)} fill="none" stroke="#6c8c5c" strokeWidth={2.5} />
-      </svg>
-      <div className="flex gap-4 px-2 pb-1 text-xs text-stone-600 dark:text-stone-400">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-4" style={{ backgroundColor: '#48656c' }} />
-          Kauf
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-4" style={{ backgroundColor: '#6c8c5c' }} />
-          Miete
-        </span>
       </div>
     </div>
   )

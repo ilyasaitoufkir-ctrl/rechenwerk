@@ -35,6 +35,7 @@ export type DimensionId =
   | 'compressorSpecificPower'
   | 'emissionFactor'
   | 'currency'
+  | 'frequency'
 
 export interface Unit {
   id: string
@@ -226,6 +227,11 @@ const emissionFactorUnits: Unit[] = [
 
 const currencyUnits: Unit[] = [linear('EUR', '€', 1)]
 
+const frequencyUnits: Unit[] = [
+  linear('Hz', '1/s', 1),
+  linear('rpm', '1/min (U/min)', 1 / 60),
+]
+
 export const dimensions: Record<DimensionId, Dimension> = {
   length: { id: 'length', label: 'Länge', siUnitLabel: 'm', units: lengthUnits },
   area: { id: 'area', label: 'Fläche', siUnitLabel: 'm²', units: areaUnits },
@@ -339,6 +345,12 @@ export const dimensions: Record<DimensionId, Dimension> = {
     label: 'Geld',
     siUnitLabel: '€',
     units: currencyUnits,
+  },
+  frequency: {
+    id: 'frequency',
+    label: 'Drehzahl/Frequenz',
+    siUnitLabel: '1/s',
+    units: frequencyUnits,
   },
 }
 

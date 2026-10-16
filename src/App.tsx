@@ -11,6 +11,17 @@ const Pruefliste = lazy(() => import('./pages/Pruefliste').then((m) => ({ defaul
 const KaufMieteVergleich = lazy(() =>
   import('./pages/KaufMieteVergleich').then((m) => ({ default: m.KaufMieteVergleich })),
 )
+const PumpenBetriebspunkt = lazy(() =>
+  import('./pages/PumpenBetriebspunkt').then((m) => ({ default: m.PumpenBetriebspunkt })),
+)
+const RezepturSkalieren = lazy(() =>
+  import('./pages/RezepturSkalieren').then((m) => ({ default: m.RezepturSkalieren })),
+)
+const Statistik = lazy(() => import('./pages/Statistik').then((m) => ({ default: m.Statistik })))
+const Regression = lazy(() => import('./pages/Regression').then((m) => ({ default: m.Regression })))
+const Fehlerfortpflanzung = lazy(() =>
+  import('./pages/Fehlerfortpflanzung').then((m) => ({ default: m.Fehlerfortpflanzung })),
+)
 const CalculatorPage = lazy(() =>
   import('./pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })),
 )
@@ -35,6 +46,16 @@ function Seite() {
       return <Pruefliste />
     case 'kauf-miete':
       return <KaufMieteVergleich />
+    case 'pumpen-betriebspunkt':
+      return <PumpenBetriebspunkt />
+    case 'rezeptur-skalieren':
+      return <RezepturSkalieren />
+    case 'statistik':
+      return <Statistik />
+    case 'regression':
+      return <Regression />
+    case 'fehlerfortpflanzung':
+      return <Fehlerfortpflanzung />
     case 'formel':
       return <CalculatorPage id={route.id} />
   }

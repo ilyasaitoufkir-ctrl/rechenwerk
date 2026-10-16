@@ -64,6 +64,8 @@ export interface Formula {
   empfehlung?: (ergebnis: Record<string, number>) => string | undefined
   /** Optional: eine Variable wird als Schichtensumme statt als Einzelwert eingegeben */
   schichtfeld?: SchichtFeld
+  /** Optional: mehrere Variablen werden aus einer Komponententabelle (z. B. Mischungskomponenten) berechnet */
+  komponentenfeld?: KomponentenFeld
   beispiel: Beispiel
 }
 
@@ -82,4 +84,38 @@ export interface SchichtFeld {
   zielVariable: string
   dickeName: string
   leitfaehigkeitName: string
+}
+
+/**
+ * Eine Spalte der Komponententabelle, z. B. "Masse" oder "Massenanteil".
+ */
+export interface KomponentenSpalte {
+  id: string
+  name: string
+  dimension: DimensionId
+  defaultUnit: string
+}
+
+/**
+ * Eine aus der Komponententabelle berechnete Summenvariable: Σ (Produkt
+ * der angegebenen Spalten je Zeile). Für eine Mischungsbilanz
+ * w_Mix = Σ(m_i·w_i)/Σm_i braucht man z. B. zwei Summen: eine über die
+ * Spalte "m" allein und eine über das Produkt "m·w".
+ */
+export interface KomponentenSumme {
+  /** Variablen-ID, unter der die berechnete Summe in `bekannt` ankommt */
+  zielVariable: string
+  /** Spalten-IDs, deren Produkt je Zeile aufsummiert wird */
+  spalten: string[]
+}
+
+/**
+ * Markiert mehrere Variablen als aus einer Komponententabelle berechnet
+ * (beliebig viele Zeilen, z. B. Mischungskomponenten). Der Rechner zeigt
+ * dafür eine Tabelle mit den angegebenen Spalten (add/remove Zeilen) statt
+ * einzelner Eingabefelder und berechnet die Summen automatisch in SI.
+ */
+export interface KomponentenFeld {
+  spalten: KomponentenSpalte[]
+  summen: KomponentenSumme[]
 }

@@ -7,17 +7,32 @@ export type Route =
   | { name: 'einheiten' }
   | { name: 'pruefliste' }
   | { name: 'kauf-miete' }
+  | { name: 'pumpen-betriebspunkt' }
+  | { name: 'rezeptur-skalieren' }
+  | { name: 'statistik' }
+  | { name: 'regression' }
+  | { name: 'fehlerfortpflanzung' }
   | { name: 'formel'; id: string }
+
+const EINFACHE_ROUTEN = [
+  'bibliothek',
+  'verlauf',
+  'einheiten',
+  'pruefliste',
+  'kauf-miete',
+  'pumpen-betriebspunkt',
+  'rezeptur-skalieren',
+  'statistik',
+  'regression',
+  'fehlerfortpflanzung',
+] as const
 
 function parseHash(hash: string): Route {
   const path = hash.replace(/^#\/?/, '')
   const [segment, id] = path.split('/')
   if (segment === 'formel' && id) return { name: 'formel', id: decodeURIComponent(id) }
-  if (segment === 'bibliothek') return { name: 'bibliothek' }
-  if (segment === 'verlauf') return { name: 'verlauf' }
-  if (segment === 'einheiten') return { name: 'einheiten' }
-  if (segment === 'pruefliste') return { name: 'pruefliste' }
-  if (segment === 'kauf-miete') return { name: 'kauf-miete' }
+  const einfach = EINFACHE_ROUTEN.find((r) => r === segment)
+  if (einfach) return { name: einfach }
   return { name: 'home' }
 }
 

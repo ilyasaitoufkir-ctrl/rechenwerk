@@ -1,6 +1,7 @@
 /** Akzeptiert Komma und Punkt als Dezimaltrenner, z. B. "3,14" oder "3.14". */
 export function parseDecimal(input: string): number | null {
   const trimmed = input.trim()
+  if (trimmed === '') return null // leer heißt "nicht eingegeben", nicht 0
   const hatKomma = trimmed.includes(',')
   const hatMehrerePunkte = (trimmed.match(/\./g) ?? []).length > 1
 

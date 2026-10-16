@@ -164,6 +164,32 @@ je Schicht (beliebig viele, add/remove) statt eines einzelnen Eingabefelds
 und berechnet die Summe selbst in SI. Im `compute` kommt `R` ganz normal als
 fertiger SI-Wert in `bekannt.R` an. Siehe `src/formulas/waerme/waermeleitung-ebene-wand.ts`.
 
+## Komponententabellen (z. B. Mischungen)
+
+Für Formeln mit einer Summe über Produkte mehrerer Spalten je Zeile (z. B.
+w_Mix = Σ(m_i·w_i)/Σm_i) gibt es `komponentenfeld`: beliebig viele Zeilen mit
+frei definierten Spalten, aus denen eine oder mehrere Summenvariablen
+berechnet werden.
+
+```ts
+komponentenfeld: {
+  spalten: [
+    { id: 'm', name: 'Masse', dimension: 'mass', defaultUnit: 'kg' },
+    { id: 'w', name: 'Massenanteil', dimension: 'dimensionless', defaultUnit: 'pct' },
+  ],
+  summen: [
+    { zielVariable: 'summeM', spalten: ['m'] },        // Σ m_i
+    { zielVariable: 'summeMW', spalten: ['m', 'w'] },  // Σ m_i·w_i
+  ],
+},
+```
+
+`summeM` und `summeMW` müssen auch ganz normal in `variablen` stehen (mit
+einer plausiblen Dimension für die interne Anzeige im Rechenweg) und kommen
+in `compute` als fertige SI-Summen an - siehe
+`src/formulas/dosierung-mischen/mischung-massenbilanz.ts` (zwei Spalten) und
+`mischtemperatur.ts` (drei Spalten, Σm·c·T).
+
 ## Neue Einheiten oder Dimensionen
 
 Alle Umrechnungsfaktoren liegen in `src/units/index.ts`, jede Dimension mit
