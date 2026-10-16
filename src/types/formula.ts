@@ -62,9 +62,24 @@ export interface Formula {
   ) => string[]
   /** Optionale ergänzende Empfehlung zum Ergebnis, z. B. Vorschlag einer Normnennweite */
   empfehlung?: (ergebnis: Record<string, number>) => string | undefined
+  /** Optional: eine Variable wird als Schichtensumme statt als Einzelwert eingegeben */
+  schichtfeld?: SchichtFeld
   beispiel: Beispiel
 }
 
 export function variable(v: Variable): Variable {
   return v
+}
+
+/**
+ * Markiert eine Variable als "Summe aus mehreren Schichten" (z. B. Σ s_i/λ_i
+ * einer mehrschichtigen Wand). Der Rechner zeigt dafür statt eines einzelnen
+ * Eingabefelds eine Liste mit Dicke + Wärmeleitfähigkeit je Schicht
+ * (beliebig viele, add/remove) und berechnet die Summe automatisch in SI.
+ */
+export interface SchichtFeld {
+  /** Variablen-ID, deren Wert aus den Schichten berechnet wird */
+  zielVariable: string
+  dickeName: string
+  leitfaehigkeitName: string
 }

@@ -144,6 +144,26 @@ describe('Meine neue Formel', () => {
 
 Dann: `npm run test` – ohne grüne Tests gilt eine neue Formel nicht als fertig.
 
+## Mehrschichtige Eingaben (z. B. Wandaufbau)
+
+Wenn eine Formel eine Summe über beliebig viele Schichten braucht (wie
+Σ s_i/λ_i bei der Wärmeleitung durch eine Wand), trage eine Variable mit der
+Dimension `thermalResistanceArea` ein und referenziere sie über
+`schichtfeld`:
+
+```ts
+variablen: [
+  // ...
+  { id: 'R', symbol: '\\sum s_i/\\lambda_i', name: 'Wandschichten', dimension: 'thermalResistanceArea', defaultUnit: 'm2KW' },
+],
+schichtfeld: { zielVariable: 'R', dickeName: 'Dicke s', leitfaehigkeitName: 'Wärmeleitfähigkeit λ' },
+```
+
+Der Rechner zeigt dafür automatisch eine Liste mit Dicke + Wärmeleitfähigkeit
+je Schicht (beliebig viele, add/remove) statt eines einzelnen Eingabefelds
+und berechnet die Summe selbst in SI. Im `compute` kommt `R` ganz normal als
+fertiger SI-Wert in `bekannt.R` an. Siehe `src/formulas/waerme/waermeleitung-ebene-wand.ts`.
+
 ## Neue Einheiten oder Dimensionen
 
 Alle Umrechnungsfaktoren liegen in `src/units/index.ts`, jede Dimension mit

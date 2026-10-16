@@ -25,6 +25,16 @@ export type DimensionId =
   | 'specificHeatCapacity'
   | 'velocity'
   | 'dimensionless'
+  | 'thermalConductivity'
+  | 'heatTransferCoefficient'
+  | 'thermalResistanceArea'
+  | 'specificEnthalpy'
+  | 'specificVolume'
+  | 'heatFlowPerLength'
+  | 'calorificValue'
+  | 'compressorSpecificPower'
+  | 'emissionFactor'
+  | 'currency'
 
 export interface Unit {
   id: string
@@ -81,6 +91,8 @@ const timeUnits: Unit[] = [
   linear('min', 'min', 60),
   linear('h', 'h', 3600),
   linear('d', 'd', 86400),
+  // Julianisches Jahr (365,25 Tage) - für wirtschaftliche Betrachtungen (Nutzungsdauer, Amortisation)
+  linear('a', 'Jahr', 365.25 * 86400),
 ]
 
 const temperatureUnits: Unit[] = [
@@ -170,7 +182,49 @@ const velocityUnits: Unit[] = [
   linear('kmh', 'km/h', 1 / 3.6),
 ]
 
-const dimensionlessUnits: Unit[] = [linear('_', '-', 1)]
+const dimensionlessUnits: Unit[] = [linear('_', '-', 1), linear('pct', '%', 0.01)]
+
+const thermalConductivityUnits: Unit[] = [linear('WmK', 'W/(m·K)', 1)]
+
+const heatTransferCoefficientUnits: Unit[] = [linear('Wm2K', 'W/(m²·K)', 1)]
+
+// Wärmedurchlasswiderstand R = s/λ einer Schicht bzw. Summe mehrerer Schichten
+const thermalResistanceAreaUnits: Unit[] = [linear('m2KW', 'm²·K/W', 1)]
+
+const specificEnthalpyUnits: Unit[] = [
+  linear('Jkg', 'J/kg', 1),
+  linear('kJkg', 'kJ/kg', 1e3),
+]
+
+const heatFlowPerLengthUnits: Unit[] = [linear('Wm', 'W/m', 1)]
+
+const specificVolumeUnits: Unit[] = [
+  linear('m3kg', 'm³/kg', 1),
+  linear('lkg', 'l/kg', 1e-3),
+]
+
+// Brennwert/Heizwert volumenbezogen, z. B. Erdgas von der Gasrechnung
+const calorificValueUnits: Unit[] = [
+  linear('Jm3', 'J/m³', 1),
+  linear('kWhm3', 'kWh/m³', 3.6e6),
+  linear('MJm3', 'MJ/m³', 1e6),
+]
+
+// Spezifischer Strombedarf eines Kompressors, bezogen auf den Ansaugvolumenstrom
+const compressorSpecificPowerUnits: Unit[] = [
+  linear('Wm3s', 'W/(m³/s)', 1),
+  // 1 kW je m³/min = 1000 W / (1/60 m³/s) = 60000 W/(m³/s)
+  linear('kWm3min', 'kW/(m³/min)', 60000),
+]
+
+// CO2-Emissionsfaktor, bezogen auf Energie - keine echte SI-Größe, eigene Basis
+const emissionFactorUnits: Unit[] = [
+  linear('kgkWh', 'kg CO₂/kWh', 1),
+  linear('kgMWh', 'kg CO₂/MWh', 1e-3),
+  linear('tMWh', 't CO₂/MWh', 1),
+]
+
+const currencyUnits: Unit[] = [linear('EUR', '€', 1)]
 
 export const dimensions: Record<DimensionId, Dimension> = {
   length: { id: 'length', label: 'Länge', siUnitLabel: 'm', units: lengthUnits },
@@ -225,6 +279,66 @@ export const dimensions: Record<DimensionId, Dimension> = {
     label: 'Dimensionslos',
     siUnitLabel: '-',
     units: dimensionlessUnits,
+  },
+  thermalConductivity: {
+    id: 'thermalConductivity',
+    label: 'Wärmeleitfähigkeit',
+    siUnitLabel: 'W/(m·K)',
+    units: thermalConductivityUnits,
+  },
+  heatTransferCoefficient: {
+    id: 'heatTransferCoefficient',
+    label: 'Wärmeübergangskoeffizient',
+    siUnitLabel: 'W/(m²·K)',
+    units: heatTransferCoefficientUnits,
+  },
+  thermalResistanceArea: {
+    id: 'thermalResistanceArea',
+    label: 'Wärmedurchlasswiderstand',
+    siUnitLabel: 'm²·K/W',
+    units: thermalResistanceAreaUnits,
+  },
+  specificEnthalpy: {
+    id: 'specificEnthalpy',
+    label: 'Spezifische Enthalpie',
+    siUnitLabel: 'J/kg',
+    units: specificEnthalpyUnits,
+  },
+  specificVolume: {
+    id: 'specificVolume',
+    label: 'Spezifisches Volumen',
+    siUnitLabel: 'm³/kg',
+    units: specificVolumeUnits,
+  },
+  heatFlowPerLength: {
+    id: 'heatFlowPerLength',
+    label: 'Wärmestrom je Länge',
+    siUnitLabel: 'W/m',
+    units: heatFlowPerLengthUnits,
+  },
+  calorificValue: {
+    id: 'calorificValue',
+    label: 'Brennwert/Heizwert',
+    siUnitLabel: 'J/m³',
+    units: calorificValueUnits,
+  },
+  compressorSpecificPower: {
+    id: 'compressorSpecificPower',
+    label: 'Spez. Kompressorleistung',
+    siUnitLabel: 'W/(m³/s)',
+    units: compressorSpecificPowerUnits,
+  },
+  emissionFactor: {
+    id: 'emissionFactor',
+    label: 'Emissionsfaktor',
+    siUnitLabel: 'kg CO₂/kWh',
+    units: emissionFactorUnits,
+  },
+  currency: {
+    id: 'currency',
+    label: 'Geld',
+    siUnitLabel: '€',
+    units: currencyUnits,
   },
 }
 

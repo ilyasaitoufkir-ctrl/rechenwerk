@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
+import { Scale } from 'lucide-react'
 import { alleFormeln, getKategorien, sucheFormeln } from '../formulas/registry'
 import { SearchBar } from '../components/SearchBar'
 import { FormulaCard } from '../components/FormulaCard'
 import { useFavoriten } from '../hooks/useFavoriten'
 import { useVerifizierung } from '../hooks/useVerifizierung'
+import { navigiere } from '../lib/router'
 
 type StatusFilter = 'alle' | 'verifiziert' | 'unverifiziert' | 'richtwert'
 
@@ -98,6 +100,20 @@ export function Library() {
             onFavoritToggeln={() => toggeln(f.id)}
           />
         ))}
+      </div>
+
+      <div className="flex flex-col gap-2 border-t border-paper-200 pt-4 dark:border-white/10">
+        <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">Weitere Werkzeuge</h2>
+        <button
+          onClick={() => navigiere({ name: 'kauf-miete' })}
+          className="flex items-center gap-3 rounded-xl border border-paper-300 bg-white px-3 py-3 text-left transition-colors hover:border-accent-300 dark:border-white/10 dark:bg-white/5"
+        >
+          <Scale size={20} className="shrink-0 text-accent-600 dark:text-accent-300" />
+          <div>
+            <p className="font-medium text-stone-900 dark:text-stone-100">Kauf-/Miete-Vergleich</p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">Break-even und Kostenverlauf als Diagramm</p>
+          </div>
+        </button>
       </div>
     </div>
   )

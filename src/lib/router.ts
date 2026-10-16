@@ -5,6 +5,8 @@ export type Route =
   | { name: 'bibliothek' }
   | { name: 'verlauf' }
   | { name: 'einheiten' }
+  | { name: 'pruefliste' }
+  | { name: 'kauf-miete' }
   | { name: 'formel'; id: string }
 
 function parseHash(hash: string): Route {
@@ -14,6 +16,8 @@ function parseHash(hash: string): Route {
   if (segment === 'bibliothek') return { name: 'bibliothek' }
   if (segment === 'verlauf') return { name: 'verlauf' }
   if (segment === 'einheiten') return { name: 'einheiten' }
+  if (segment === 'pruefliste') return { name: 'pruefliste' }
+  if (segment === 'kauf-miete') return { name: 'kauf-miete' }
   return { name: 'home' }
 }
 

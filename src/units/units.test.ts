@@ -60,6 +60,21 @@ describe('Einheiten: Querverprobung bekannter Faktoren', () => {
     const mm2s = dimensions.kinematicViscosity.units.find((u) => u.id === 'mm2s')!
     expect(cSt.toSI(1)).toBeCloseTo(mm2s.toSI(1), 9)
   })
+
+  it('1 kWh/m³ = 3 600 000 J/m³', () => {
+    const kWhm3 = dimensions.calorificValue.units.find((u) => u.id === 'kWhm3')!
+    expect(kWhm3.toSI(1)).toBeCloseTo(3.6e6, 3)
+  })
+
+  it('1 kW/(m³/min) = 60000 W/(m³/s)', () => {
+    const kWm3min = dimensions.compressorSpecificPower.units.find((u) => u.id === 'kWm3min')!
+    expect(kWm3min.toSI(1)).toBeCloseTo(60000, 6)
+  })
+
+  it('1 t CO₂/MWh = 1 kg CO₂/kWh', () => {
+    const tMWh = dimensions.emissionFactor.units.find((u) => u.id === 'tMWh')!
+    expect(tMWh.toSI(1)).toBeCloseTo(1, 9)
+  })
 })
 
 describe('Dynamisch <-> kinematisch über ν = η / ρ', () => {

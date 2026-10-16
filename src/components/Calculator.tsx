@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, Info, Star } from 'lucide-react'
 import type { Formula, Variable } from '../types/formula'
-import { toSI } from '../units'
+import { toSI, fromSI } from '../units'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { getLetzteEingaben, setLetzteEingaben, verlaufEintragHinzufuegen } from '../lib/storage'
 import { useVerifizierung } from '../hooks/useVerifizierung'
@@ -9,6 +9,7 @@ import { useFavoriten } from '../hooks/useFavoriten'
 import { useEinstellungen } from '../hooks/useEinstellungen'
 import { useTransfer } from '../hooks/useTransfer'
 import { FeldEingabe } from './FeldEingabe'
+import { SchichtenEingabe } from './SchichtenEingabe'
 import { ResultDisplay } from './ResultDisplay'
 import { WarningBanner } from './WarningBanner'
 import { VerificationBadge } from './VerificationBadge'
@@ -46,6 +47,8 @@ export function Calculator({ formel }: { formel: Formula }) {
     return initial
   })
   const [rechenwegOffen, setRechenwegOffen] = useState(false)
+  const [schichtSumme, setSchichtSumme] = useState<number | null>(null)
+  const schichtVariableId = formel.schichtfeld?.zielVariable
 
   const { verifizierungen, setzen } = useVerifizierung()
   const { favoriten, toggeln } = useFavoriten()
@@ -65,6 +68,7 @@ export function Calculator({ formel }: { formel: Formula }) {
 
   const parsedWerte: Record<string, { wert: number; fehler?: string }> = {}
   for (const v of eingabeVariablen) {
+    if (v.id === schichtVariableId) continue // eigene Eingabe über SchichtenEingabe
     const text = werte[v.id] ?? ''
     if (text.trim() === '') {
       parsedWerte[v.id] = { wert: NaN, fehler: undefined }
@@ -82,7 +86,10 @@ export function Calculator({ formel }: { formel: Formula }) {
     }
   }
 
-  const alleAusgefuellt = eingabeVariablen.every((v) => (werte[v.id] ?? '').trim() !== '')
+  const alleAusgefuellt =
+    eingabeVariablen
+      .filter((v) => v.id !== schichtVariableId)
+      .every((v) => (werte[v.id] ?? '').trim() !== '') && (!schichtVariableId || schichtSumme !== null)
   const hatFehler = Object.values(parsedWerte).some((p) => p.fehler)
 
   let ergebnis: Record<string, number> | null = null
@@ -93,7 +100,11 @@ export function Calculator({ formel }: { formel: Formula }) {
     try {
       bekanntSI = {}
       for (const v of eingabeVariablen) {
-        bekanntSI[v.id] = toSI(parsedWerte[v.id].wert, v.dimension, einheiten[v.id] ?? v.defaultUnit)
+        if (v.id === schichtVariableId) {
+          bekanntSI[v.id] = schichtSumme!
+        } else {
+          bekanntSI[v.id] = toSI(parsedWerte[v.id].wert, v.dimension, einheiten[v.id] ?? v.defaultUnit)
+        }
       }
       const roh = formel.compute(bekanntSI, ziel)
       const nichtEndlich = Object.values(roh).some((x) => !Number.isFinite(x))
@@ -179,6 +190,16 @@ export function Calculator({ formel }: { formel: Formula }) {
 
       <div className="flex flex-col gap-4">
         {eingabeVariablen.map((v) => {
+          if (v.id === schichtVariableId && formel.schichtfeld) {
+            return (
+              <SchichtenEingabe
+                key={v.id}
+                feld={formel.schichtfeld}
+                name={v.name}
+                onSummeChange={setSchichtSumme}
+              />
+            )
+          }
           const vorschlag =
             transfer && transfer.dimension === v.dimension
               ? {
@@ -263,7 +284,9 @@ export function Calculator({ formel }: { formel: Formula }) {
                   <li key={v.id} className="flex justify-between gap-2 text-stone-600 dark:text-stone-400">
                     <span>{v.name}</span>
                     <span className="tabular-nums">
-                      {werte[v.id]} {einheiten[v.id]}
+                      {v.id === schichtVariableId
+                        ? `${formatNumber(fromSI(schichtSumme ?? 0, v.dimension, einheiten[v.id] ?? v.defaultUnit), signifikanteStellen)} ${einheiten[v.id]}`
+                        : `${werte[v.id]} ${einheiten[v.id]}`}
                     </span>
                   </li>
                 ))}
