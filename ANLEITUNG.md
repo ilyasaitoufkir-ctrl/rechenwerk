@@ -190,6 +190,27 @@ in `compute` als fertige SI-Summen an - siehe
 `src/formulas/dosierung-mischen/mischung-massenbilanz.ts` (zwei Spalten) und
 `mischtemperatur.ts` (drei Spalten, Σm·c·T).
 
+## Pflichthinweis für eine ganze Kategorie (z. B. Druckgeräte)
+
+Wenn eine komplette Kategorie denselben nicht wegklickbaren Warnhinweis
+braucht (so bei "Druckgeräte", siehe
+`src/formulas/druckgeraete/hinweis.ts` und
+`src/components/DruckgeraeteBanner.tsx`):
+
+1. Den Wortlaut als Konstante in einer `hinweis.ts` der Kategorie ablegen.
+2. In jeder Formel dieser Kategorie als ersten Eintrag in `annahmen`
+   referenzieren, damit er im Rechenweg jedes Ergebnisses auftaucht.
+3. In `Calculator.tsx` eine Bedingung auf `formel.kategorie === '<Name>'`
+   ergänzen, die das Banner über der Formel einblendet.
+
+Bei sicherheitsrelevanten Formeln außerdem: Werte außerhalb des
+mathematischen Gültigkeitsbereichs (z. B. eine Wanddickenformel mit
+negativem Nenner) im `compute` per `throw` hart ablehnen statt nur über
+`warnungen` zu warnen - und wenn eine normative Anwendungsgrenze (z. B.
+ein Wanddicken-/Durchmesser-Verhältnis) nicht mit Sicherheit bekannt ist,
+lieber auf die Prüfung verzichten und das im `gueltigkeit`-Feld offen
+benennen, als eine unsichere Zahl zu erfinden.
+
 ## Neue Einheiten oder Dimensionen
 
 Alle Umrechnungsfaktoren liegen in `src/units/index.ts`, jede Dimension mit

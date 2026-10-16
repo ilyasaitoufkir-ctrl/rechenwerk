@@ -37,6 +37,23 @@ import { npsh } from './pumpen/npsh'
 import { verdraengerpumpe } from './pumpen/verdraengerpumpe'
 import { affinitaetsgesetze } from './pumpen/affinitaetsgesetze'
 import { drehzahlDrosselVergleich } from './pumpen/drehzahl-drossel-vergleich'
+import { zylinderschaleEn13445 } from './druckgeraete/zylinderschale-en13445'
+import { kugelschaleEn13445 } from './druckgeraete/kugelschale-en13445'
+import { zylinderschaleAd2000B1 } from './druckgeraete/zylinderschale-ad2000-b1'
+import { pruefdruckDgrl } from './druckgeraete/pruefdruck-dgrl'
+import { dgrlEinstufungBehaelter } from './druckgeraete/dgrl-einstufung-behaelter'
+import { dgrlEinstufungRohrleitung } from './druckgeraete/dgrl-einstufung-rohrleitung'
+import { gleichgewichtskurve } from './rektifikation/gleichgewichtskurve'
+import { dampfdruckAntoine } from './rektifikation/dampfdruck-antoine'
+import { siedepunkt } from './rektifikation/siedepunkt'
+import { taupunkt } from './rektifikation/taupunkt'
+import { massenbilanzKolonne } from './rektifikation/massenbilanz-kolonne'
+import { fenskeMindeststufenzahl } from './rektifikation/fenske-mindeststufenzahl'
+import { mindestrueckverhaeltnis } from './rektifikation/mindestrueckverhaeltnis'
+import { gillilandStufenzahl } from './rektifikation/gilliland-stufenzahl'
+import { kondensatorWaermelast } from './rektifikation/kondensator-waermelast'
+import { sicherheitsventilGasDampf } from './sicherheitsventile/sicherheitsventil-gas-dampf'
+import { sicherheitsventilFluessigkeit } from './sicherheitsventile/sicherheitsventil-fluessigkeit'
 import { dosierKalibrierung } from './dosierung-mischen/dosier-kalibrierung'
 import { mischungMassenbilanz } from './dosierung-mischen/mischung-massenbilanz'
 import { mischungskreuz } from './dosierung-mischen/mischungskreuz'
@@ -110,6 +127,23 @@ export const alleFormeln: Formula[] = [
   blechgewichtKreisflaeche,
   blechgewichtZylindermantel,
   blechgewichtKegelstumpfmantel,
+  zylinderschaleEn13445,
+  kugelschaleEn13445,
+  zylinderschaleAd2000B1,
+  pruefdruckDgrl,
+  dgrlEinstufungBehaelter,
+  dgrlEinstufungRohrleitung,
+  sicherheitsventilGasDampf,
+  sicherheitsventilFluessigkeit,
+  gleichgewichtskurve,
+  dampfdruckAntoine,
+  siedepunkt,
+  taupunkt,
+  massenbilanzKolonne,
+  fenskeMindeststufenzahl,
+  mindestrueckverhaeltnis,
+  gillilandStufenzahl,
+  kondensatorWaermelast,
 ]
 
 export function getFormel(id: string): Formula | undefined {

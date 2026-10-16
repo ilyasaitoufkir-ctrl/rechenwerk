@@ -15,6 +15,7 @@ import { ResultDisplay } from './ResultDisplay'
 import { WarningBanner } from './WarningBanner'
 import { VerificationBadge } from './VerificationBadge'
 import { KatexBlock } from './KatexBlock'
+import { DruckgeraeteBanner } from './DruckgeraeteBanner'
 
 interface GespeicherterZustand {
   ziel?: string
@@ -166,6 +167,8 @@ export function Calculator({ formel }: { formel: Formula }) {
           <Star size={22} className={istFav ? 'fill-amber-400 text-amber-500' : ''} />
         </button>
       </div>
+
+      {formel.kategorie === 'Druckgeräte' && <DruckgeraeteBanner />}
 
       <VerificationBadge
         verifizierung={verifizierungen[formel.id]}

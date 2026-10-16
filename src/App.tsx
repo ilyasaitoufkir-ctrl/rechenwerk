@@ -22,6 +22,7 @@ const Regression = lazy(() => import('./pages/Regression').then((m) => ({ defaul
 const Fehlerfortpflanzung = lazy(() =>
   import('./pages/Fehlerfortpflanzung').then((m) => ({ default: m.Fehlerfortpflanzung })),
 )
+const McCabeThiele = lazy(() => import('./pages/McCabeThiele').then((m) => ({ default: m.McCabeThiele })))
 const CalculatorPage = lazy(() =>
   import('./pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })),
 )
@@ -56,6 +57,8 @@ function Seite() {
       return <Regression />
     case 'fehlerfortpflanzung':
       return <Fehlerfortpflanzung />
+    case 'mccabe-thiele':
+      return <McCabeThiele />
     case 'formel':
       return <CalculatorPage id={route.id} />
   }

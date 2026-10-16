@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Scale, Gauge, Beaker, BarChart3, TrendingUp, Sigma } from 'lucide-react'
+import { Scale, Gauge, Beaker, BarChart3, TrendingUp, Sigma, FlaskConical } from 'lucide-react'
 import { alleFormeln, getKategorien, sucheFormeln } from '../formulas/registry'
 import { SearchBar } from '../components/SearchBar'
 import { FormulaCard } from '../components/FormulaCard'
@@ -16,6 +16,7 @@ const WERKZEUGE: { route: Route; icon: typeof Scale; titel: string; beschreibung
   { route: { name: 'statistik' }, icon: BarChart3, titel: 'Statistik', beschreibung: 'Kennwerte und Vertrauensbereich einer Messreihe' },
   { route: { name: 'regression' }, icon: TrendingUp, titel: 'Lineare Regression', beschreibung: 'Ausgleichsgerade und Kalibrierkurve rückwärts' },
   { route: { name: 'fehlerfortpflanzung' }, icon: Sigma, titel: 'Fehlerfortpflanzung', beschreibung: 'Gaußsche Fehlerfortpflanzung für jede Formel' },
+  { route: { name: 'mccabe-thiele' }, icon: FlaskConical, titel: 'McCabe-Thiele-Diagramm', beschreibung: 'Grafische Stufenkonstruktion für die Rektifikation' },
 ]
 
 export function Library() {
