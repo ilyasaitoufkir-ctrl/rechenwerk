@@ -58,7 +58,7 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
   const yTicks = Array.from({ length: ticks + 1 }, (_, i) => yMin + (ySpan * i) / ticks)
 
   return (
-    <div className="rounded-xl border border-paper-300 bg-white p-2 dark:border-white/10 dark:bg-white/5">
+    <div className="rounded-2xl bg-white p-2">
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" role="img" aria-label={ariaLabel}>
         {yTicks.map((v, i) => (
           <g key={`y${i}`}>
@@ -67,10 +67,10 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
               x2={width - padding.right}
               y1={y(v)}
               y2={y(v)}
-              className="stroke-paper-200 dark:stroke-white/10"
+              className="stroke-paper-200"
               strokeWidth={1}
             />
-            <text x={padding.left - 8} y={y(v) + 4} textAnchor="end" fontSize={11} className="fill-stone-500 dark:fill-stone-400">
+            <text x={padding.left - 8} y={y(v) + 4} textAnchor="end" fontSize={11} className="fill-stone-500">
               {formatNumber(v, 3)}
             </text>
           </g>
@@ -82,7 +82,7 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
             y={height - padding.bottom + 16}
             textAnchor="middle"
             fontSize={11}
-            className="fill-stone-500 dark:fill-stone-400"
+            className="fill-stone-500"
           >
             {formatNumber(v, 3)}
           </text>
@@ -102,11 +102,11 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
 
         {markierung && (
           <g>
-            <circle cx={x(markierung.x)} cy={y(markierung.y)} r={5.5} fill={markierung.farbe ?? '#c084fc'} stroke="white" strokeWidth={1.5} />
+            <circle cx={x(markierung.x)} cy={y(markierung.y)} r={5.5} fill={markierung.farbe ?? '#b7791f'} stroke="white" strokeWidth={1.5} />
           </g>
         )}
       </svg>
-      <div className="flex flex-wrap gap-4 px-2 pb-1 text-xs text-stone-600 dark:text-stone-400">
+      <div className="flex flex-wrap gap-4 px-2 pb-1 text-xs text-stone-600">
         {reihen.map((r) => (
           <span key={r.label} className="flex items-center gap-1.5">
             <span className="inline-block h-0.5 w-4" style={{ backgroundColor: r.farbe }} />
@@ -117,7 +117,7 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
           <span className="flex items-center gap-1.5">
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: markierung.farbe ?? '#c084fc' }}
+              style={{ backgroundColor: markierung.farbe ?? '#b7791f' }}
             />
             {markierung.label}
           </span>

@@ -4,6 +4,7 @@ import { parseDecimal, formatNumber } from '../lib/format'
 import { lineareRegression } from '../lib/statistik'
 import { WarningBanner } from '../components/WarningBanner'
 import { LineChart } from '../components/LineChart'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 
 interface Punkt {
   x: string
@@ -38,6 +39,7 @@ function parsePaare(text: string): { x: number; y: number }[] {
 }
 
 export function Regression() {
+  useSetHeaderTitle('Lineare Regression')
   const [punkte, setPunkte] = useState<Punkt[]>(STANDARD)
   const [paste, setPaste] = useState('')
   const [yMesswert, setYMesswert] = useState('')
@@ -87,10 +89,7 @@ export function Regression() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Lineare Regression</h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">Ausgleichsgerade, Bestimmtheitsmaß, Kalibrierkurve rückwärts</p>
-      </div>
+      <p className="text-[14px] text-stone-500">Ausgleichsgerade, Bestimmtheitsmaß, Kalibrierkurve rückwärts</p>
 
       <div className="flex flex-col gap-2">
         <textarea
@@ -98,7 +97,7 @@ export function Regression() {
           onChange={(e) => setPaste(e.target.value)}
           placeholder="x- und y-Spalte gemeinsam aus Excel einfügen (je Zeile x TAB y)"
           rows={3}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
         />
         <button
           onClick={einfuegen}
@@ -111,31 +110,31 @@ export function Regression() {
       <div className="flex flex-col gap-2">
         {punkte.map((p, i) => (
           <div key={i} className="flex items-end gap-2">
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
               x
               <input
                 type="text"
                 inputMode="decimal"
                 value={p.x}
                 onChange={(e) => punktAendern(i, { x: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
               />
             </label>
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
               y
               <input
                 type="text"
                 inputMode="decimal"
                 value={p.y}
                 onChange={(e) => punktAendern(i, { y: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
               />
             </label>
             <button
               onClick={() => punktEntfernen(i)}
               disabled={punkte.length === 1}
               aria-label="Punkt entfernen"
-              className="shrink-0 rounded-lg p-2.5 text-stone-400 hover:bg-paper-100 disabled:opacity-30 dark:hover:bg-white/10"
+              className="shrink-0 rounded-lg p-2.5 text-stone-400 hover:bg-paper-100 disabled:opacity-30"
             >
               <Trash2 size={18} />
             </button>
@@ -143,7 +142,7 @@ export function Regression() {
         ))}
         <button
           onClick={punktHinzufuegen}
-          className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-50 dark:text-accent-300 dark:hover:bg-accent-900/30"
+          className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-50"
         >
           <Plus size={14} />
           Punkt hinzufügen
@@ -161,13 +160,13 @@ export function Regression() {
             reihen={[
               {
                 label: 'Messpunkte',
-                farbe: '#9f7b3b',
+                farbe: '#b7791f',
                 typ: 'punkte',
                 punkte: regression.punkte,
               },
               {
                 label: 'Regressionsgerade',
-                farbe: '#48656c',
+                farbe: '#0f4c5c',
                 punkte: (() => {
                   const xs = regression.punkte.map((p) => p.x)
                   const xMin = Math.min(...xs)
@@ -181,27 +180,27 @@ export function Regression() {
             ]}
           />
 
-          <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm dark:border-sage-800/60 dark:bg-sage-900/20">
-            <p className="text-stone-700 dark:text-stone-300">
+          <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm">
+            <p className="text-stone-700">
               y = {formatNumber(regression.steigung, 5)}·x + {formatNumber(regression.achsenabschnitt, 5)}
             </p>
-            <p className="text-stone-700 dark:text-stone-300">R² = {formatNumber(regression.r2, 5)}</p>
+            <p className="text-stone-700">R² = {formatNumber(regression.r2, 5)}</p>
           </div>
 
-          <div className="flex flex-col gap-2 rounded-xl border border-paper-300 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-            <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">Kalibrierkurve rückwärts nutzen</h2>
+          <div className="flex flex-col gap-2 rounded-2xl bg-white p-4">
+            <h2 className="text-sm font-semibold text-stone-700">Kalibrierkurve rückwärts nutzen</h2>
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs text-stone-500 dark:text-stone-400">Gemessener y-Wert</span>
+              <span className="text-xs text-stone-500">Gemessener y-Wert</span>
               <input
                 type="text"
                 inputMode="decimal"
                 value={yMesswert}
                 onChange={(e) => setYMesswert(e.target.value)}
-                className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
               />
             </label>
             {xAusY !== null && (
-              <p className="text-stone-700 dark:text-stone-300">
+              <p className="text-stone-700">
                 x = <span className="font-semibold">{formatNumber(xAusY, 5)}</span>
               </p>
             )}

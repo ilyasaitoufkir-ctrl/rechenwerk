@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import type Anthropic from '@anthropic-ai/sdk'
 import { Send, Paperclip, X, Settings, History, Trash2, WifiOff, Plus } from 'lucide-react'
-import { fuehreGespraechsrundeAus, type KiNutzung as KiRundenNutzung } from '../lib/ki-client'
+import { fuehreGespraechsrundeAus } from '../lib/ki-client'
 import { ToolCallCard } from '../components/ToolCallCard'
 import type { RechnerLink } from '../lib/ki-werkzeuge'
 import {
   getKiZugangscode,
-  setKiZugangscode,
   getKiKonversationen,
   kiKonversationSpeichern,
   kiKonversationLoeschen,
-  getKiNutzung,
   kiNutzungHinzufuegen,
   type KiKonversation,
 } from '../lib/storage'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
+import { navigiere } from '../lib/router'
 
 const MAX_BILD_PIXEL = 1600
 
@@ -24,19 +24,6 @@ interface LaufendesWerkzeug {
   ergebnis?: unknown
   istFehler?: boolean
   rechnerLink?: RechnerLink
-}
-
-// Sonnet-5-Preise laut Anthropic-Preisliste (Stand Implementierung) - nur für eine grobe,
-// lokale Kostenschätzung. Keine Garantie auf Aktualität, siehe Hinweistext in der UI.
-const PREIS_PRO_MTOK = { input: 2, output: 10, cacheRead: 0.2, cacheWrite: 2.5 }
-
-function geschaetzteKostenEuro(n: { inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheWriteTokens: number }): number {
-  return (
-    (n.inputTokens / 1e6) * PREIS_PRO_MTOK.input +
-    (n.outputTokens / 1e6) * PREIS_PRO_MTOK.output +
-    (n.cacheReadTokens / 1e6) * PREIS_PRO_MTOK.cacheRead +
-    (n.cacheWriteTokens / 1e6) * PREIS_PRO_MTOK.cacheWrite
-  )
 }
 
 function extrahiereTitel(nachrichten: Anthropic.MessageParam[]): string {
@@ -81,8 +68,8 @@ async function bildVerarbeiten(file: File): Promise<{ mediaType: string; data: s
 }
 
 export function Assistent() {
-  const [zugangscode, setZugangscodeState] = useState(getKiZugangscode)
-  const [codeEingabe, setCodeEingabe] = useState('')
+  useSetHeaderTitle('Assistent')
+  const [zugangscode] = useState(getKiZugangscode)
   const [verlauf, setVerlauf] = useState<Anthropic.MessageParam[]>([])
   const [eingabe, setEingabe] = useState('')
   const [bildAnhang, setBildAnhang] = useState<{ mediaType: string; data: string } | null>(null)
@@ -90,10 +77,8 @@ export function Assistent() {
   const [streamingText, setStreamingText] = useState('')
   const [laufendeWerkzeuge, setLaufendeWerkzeuge] = useState<LaufendesWerkzeug[]>([])
   const [fehler, setFehler] = useState<string | null>(null)
-  const [zeigeEinstellungen, setZeigeEinstellungen] = useState(false)
   const [zeigeVerlaufListe, setZeigeVerlaufListe] = useState(false)
   const [konversationen, setKonversationen] = useState<KiKonversation[]>(getKiKonversationen)
-  const [nutzung, setNutzung] = useState(getKiNutzung)
   const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
   const [rechnerLinks, setRechnerLinks] = useState<Record<string, RechnerLink>>({})
 
@@ -141,7 +126,7 @@ export function Assistent() {
     const text = eingabe.trim()
     if (!text && !bildAnhang) return
     if (!zugangscode) {
-      setZeigeEinstellungen(true)
+      navigiere({ name: 'einstellungen' })
       return
     }
 
@@ -182,8 +167,7 @@ export function Assistent() {
             setRechnerLinks((r) => ({ ...r, [ereignis.id]: link }))
           }
         } else if (ereignis.typ === 'nutzung') {
-          const n: KiRundenNutzung = ereignis.nutzung
-          setNutzung(kiNutzungHinzufuegen(n))
+          kiNutzungHinzufuegen(ereignis.nutzung)
         } else if (ereignis.typ === 'verlauf') {
           aktuellerVerlauf = ereignis.verlauf
           setVerlauf(aktuellerVerlauf)
@@ -232,48 +216,39 @@ export function Assistent() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-8.5rem)] flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Assistent</h1>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setZeigeVerlaufListe((v) => !v)}
-            aria-label="Unterhaltungen"
-            className="rounded-lg p-2 text-stone-500 hover:bg-paper-100 dark:text-stone-400 dark:hover:bg-white/10"
-          >
-            <History size={20} />
-          </button>
-          <button
-            onClick={neueUnterhaltung}
-            aria-label="Neue Unterhaltung"
-            className="rounded-lg p-2 text-stone-500 hover:bg-paper-100 dark:text-stone-400 dark:hover:bg-white/10"
-          >
-            <Plus size={20} />
-          </button>
-          <button
-            onClick={() => setZeigeEinstellungen((v) => !v)}
-            aria-label="Einstellungen"
-            className="rounded-lg p-2 text-stone-500 hover:bg-paper-100 dark:text-stone-400 dark:hover:bg-white/10"
-          >
-            <Settings size={20} />
-          </button>
-        </div>
+    <div className="flex h-full flex-col gap-3 px-4 pt-2">
+      <div className="flex items-center justify-end gap-1">
+        <button
+          onClick={() => setZeigeVerlaufListe((v) => !v)}
+          aria-label="Unterhaltungen"
+          className="rounded-lg p-2 text-stone-500"
+        >
+          <History size={20} />
+        </button>
+        <button onClick={neueUnterhaltung} aria-label="Neue Unterhaltung" className="rounded-lg p-2 text-stone-500">
+          <Plus size={20} />
+        </button>
+        <button
+          onClick={() => navigiere({ name: 'einstellungen' })}
+          aria-label="Einstellungen"
+          className="rounded-lg p-2 text-stone-500"
+        >
+          <Settings size={20} />
+        </button>
       </div>
 
       {zeigeVerlaufListe && (
-        <div className="flex max-h-48 flex-col gap-1.5 overflow-y-auto rounded-xl border border-paper-300 bg-white p-2 dark:border-white/10 dark:bg-white/5">
-          {konversationen.length === 0 && (
-            <p className="p-2 text-sm text-stone-500 dark:text-stone-400">Noch keine gespeicherten Unterhaltungen.</p>
-          )}
+        <div className="flex max-h-48 flex-col gap-1.5 overflow-y-auto rounded-2xl bg-white p-2">
+          {konversationen.length === 0 && <p className="p-2 text-sm text-stone-500">Noch keine gespeicherten Unterhaltungen.</p>}
           {konversationen.map((k) => (
             <div key={k.id} className="flex items-center gap-1">
-              <button onClick={() => konversationLaden(k)} className="min-w-0 flex-1 truncate rounded-lg px-2 py-1.5 text-left text-sm text-stone-700 hover:bg-paper-100 dark:text-stone-300 dark:hover:bg-white/10">
+              <button onClick={() => konversationLaden(k)} className="min-w-0 flex-1 truncate rounded-lg px-2 py-1.5 text-left text-sm text-stone-700">
                 {k.titel}
               </button>
               <button
                 onClick={() => setKonversationen(kiKonversationLoeschen(k.id))}
                 aria-label="Unterhaltung löschen"
-                className="shrink-0 rounded-lg p-1.5 text-stone-400 hover:bg-paper-100 dark:hover:bg-white/10"
+                className="shrink-0 rounded-lg p-1.5 text-stone-400"
               >
                 <Trash2 size={15} />
               </button>
@@ -282,48 +257,17 @@ export function Assistent() {
         </div>
       )}
 
-      {zeigeEinstellungen && (
-        <div className="flex flex-col gap-3 rounded-xl border border-paper-300 bg-white p-3 text-sm dark:border-white/10 dark:bg-white/5">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-stone-600 dark:text-stone-400">Zugangscode</label>
-            <div className="flex gap-2">
-              <input
-                value={codeEingabe}
-                onChange={(e) => setCodeEingabe(e.target.value)}
-                placeholder={zugangscode ? '•••• bereits gespeichert' : 'Zugangscode eingeben'}
-                className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-1.5 text-sm dark:border-white/15 dark:bg-white/5"
-              />
-              <button
-                onClick={() => {
-                  setKiZugangscode(codeEingabe)
-                  setZugangscodeState(getKiZugangscode())
-                  setCodeEingabe('')
-                }}
-                className="shrink-0 rounded-lg bg-accent-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-700"
-              >
-                Speichern
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-              Dies ist dein persönlicher Zugangscode für den Assistenten - nicht der API-Schlüssel. Der bleibt
-              ausschließlich serverseitig in Vercel hinterlegt.
-            </p>
-          </div>
-
-          <div className="border-t border-paper-200 pt-2 dark:border-white/10">
-            <p className="text-xs font-semibold text-stone-600 dark:text-stone-400">Geschätzte Kosten (lokal, ungefähr)</p>
-            <p className="text-stone-700 dark:text-stone-300">
-              {nutzung.anfragen} Anfragen · ca. {geschaetzteKostenEuro(nutzung).toFixed(3)} €
-            </p>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Grobe Schätzung anhand der Token-Nutzung zu Sonnet-5-Listenpreisen, keine echte Abrechnung.
-            </p>
-          </div>
-        </div>
+      {!zugangscode && (
+        <button
+          onClick={() => navigiere({ name: 'einstellungen' })}
+          className="rounded-2xl bg-amber-50 p-3 text-left text-[14px] text-amber-900"
+        >
+          Noch kein Zugangscode hinterlegt. Zum Einrichten antippen (Einstellungen → KI-Assistent).
+        </button>
       )}
 
       {!online && (
-        <div className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 p-2.5 text-sm text-amber-900 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-200">
+        <div className="flex items-center gap-2 rounded-2xl bg-amber-50 p-2.5 text-sm text-amber-900">
           <WifiOff size={16} />
           Keine Internetverbindung - der Assistent benötigt eine Verbindung zum Server.
         </div>
@@ -331,7 +275,7 @@ export function Assistent() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         {verlauf.length === 0 && !streamingText && (
-          <p className="py-10 text-center text-sm text-stone-500 dark:text-stone-400">
+          <p className="py-10 text-center text-sm text-stone-500">
             Frag etwas aus der Verfahrenstechnik - der Assistent rechnet ausschließlich über die geprüfte
             Formelbibliothek von Rechenwerk und nennt dabei immer Formel, Quelle und Status.
           </p>
@@ -340,7 +284,14 @@ export function Assistent() {
         {verlauf.map((m, i) => {
           if (typeof m.content === 'string') {
             return (
-              <div key={i} className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${m.role === 'user' ? 'ml-auto bg-accent-600 text-white' : 'bg-paper-100 text-stone-800 dark:bg-white/10 dark:text-stone-200'}`}>
+              <div
+                key={i}
+                className={
+                  m.role === 'user'
+                    ? 'ml-auto max-w-[85%] rounded-2xl bg-accent-600 px-3.5 py-2.5 text-[16px] text-white'
+                    : 'max-w-[85%] whitespace-pre-wrap text-[16px] text-stone-900'
+                }
+              >
                 {m.content}
               </div>
             )
@@ -352,9 +303,11 @@ export function Assistent() {
                   return (
                     <div
                       key={j}
-                      className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3 py-2 text-sm ${
-                        m.role === 'user' ? 'ml-auto bg-accent-600 text-white' : 'bg-paper-100 text-stone-800 dark:bg-white/10 dark:text-stone-200'
-                      }`}
+                      className={
+                        m.role === 'user'
+                          ? 'ml-auto max-w-[85%] rounded-2xl bg-accent-600 px-3.5 py-2.5 text-[16px] text-white'
+                          : 'max-w-[85%] whitespace-pre-wrap text-[16px] text-stone-900'
+                      }
                     >
                       {block.text}
                     </div>
@@ -407,9 +360,7 @@ export function Assistent() {
         ))}
 
         {streamingText && (
-          <div className="max-w-[85%] whitespace-pre-wrap rounded-xl bg-paper-100 px-3 py-2 text-sm text-stone-800 dark:bg-white/10 dark:text-stone-200">
-            {streamingText}
-          </div>
+          <div className="max-w-[85%] whitespace-pre-wrap text-[16px] text-stone-900">{streamingText}</div>
         )}
 
         {laeuft && !streamingText && laufendeWerkzeuge.length === 0 && (
@@ -421,7 +372,7 @@ export function Assistent() {
         )}
 
         {fehler && (
-          <div className="rounded-xl border border-red-300 bg-red-50 p-2.5 text-sm text-red-800 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-300">
+          <div className="rounded-2xl bg-red-50 p-2.5 text-sm text-red-800">
             {fehler}
           </div>
         )}
@@ -429,17 +380,17 @@ export function Assistent() {
       </div>
 
       {bildAnhang && (
-        <div className="flex items-center gap-2 rounded-xl border border-paper-300 bg-white p-2 dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center gap-2 rounded-2xl bg-white p-2">
           <img src={`data:${bildAnhang.mediaType};base64,${bildAnhang.data}`} alt="Vorschau" className="h-10 w-10 rounded-lg object-cover" />
-          <span className="flex-1 text-xs text-stone-500 dark:text-stone-400">Bild angehängt</span>
-          <button onClick={() => setBildAnhang(null)} aria-label="Bild entfernen" className="rounded-lg p-1.5 text-stone-400 hover:bg-paper-100 dark:hover:bg-white/10">
+          <span className="flex-1 text-xs text-stone-500">Bild angehängt</span>
+          <button onClick={() => setBildAnhang(null)} aria-label="Bild entfernen" className="rounded-lg p-1.5 text-stone-400 hover:bg-paper-100">
             <X size={16} />
           </button>
         </div>
       )}
 
-      <div className="flex items-end gap-2">
-        <label className="shrink-0 cursor-pointer rounded-lg p-2.5 text-stone-500 hover:bg-paper-100 dark:text-stone-400 dark:hover:bg-white/10">
+      <div className="flex items-end gap-2 pb-[calc(12px+var(--safe-bottom))]">
+        <label className="shrink-0 cursor-pointer rounded-lg p-2.5 text-stone-500">
           <Paperclip size={20} />
           <input type="file" accept="image/*" className="hidden" onChange={aufBildAuswahl} />
         </label>
@@ -454,13 +405,13 @@ export function Assistent() {
           }}
           placeholder="Frage an den Assistenten..."
           rows={1}
-          className="min-w-0 flex-1 resize-none rounded-xl border border-paper-300 bg-white px-3 py-2.5 text-sm dark:border-white/15 dark:bg-white/5"
+          className="min-w-0 flex-1 resize-none rounded-xl border border-paper-300 bg-white px-3 py-2.5 text-[16px]"
         />
         <button
           onClick={() => void senden()}
           disabled={laeuft || (!eingabe.trim() && !bildAnhang)}
           aria-label="Senden"
-          className="shrink-0 rounded-lg bg-accent-600 p-2.5 text-white hover:bg-accent-700 disabled:opacity-40"
+          className="shrink-0 rounded-lg bg-accent-600 p-2.5 text-white disabled:opacity-40"
         >
           <Send size={20} />
         </button>

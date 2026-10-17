@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 
 export type Route =
   | { name: 'home' }
+  | { name: 'rechner' }
   | { name: 'bibliothek' }
+  | { name: 'einstellungen' }
   | { name: 'verlauf' }
   | { name: 'einheiten' }
-  | { name: 'pruefliste' }
   | { name: 'kauf-miete' }
   | { name: 'pumpen-betriebspunkt' }
   | { name: 'rezeptur-skalieren' }
@@ -16,11 +17,15 @@ export type Route =
   | { name: 'assistent' }
   | { name: 'formel'; id: string }
 
+/** Tab-Wurzeln: großer Titel, keine Zurück-Navigation. */
+export const TAB_ROUTEN = ['home', 'rechner', 'assistent', 'bibliothek', 'einstellungen'] as const
+
 const EINFACHE_ROUTEN = [
+  'rechner',
   'bibliothek',
+  'einstellungen',
   'verlauf',
   'einheiten',
-  'pruefliste',
   'kauf-miete',
   'pumpen-betriebspunkt',
   'rezeptur-skalieren',
@@ -48,6 +53,11 @@ export function navigiere(route: Route): void {
         ? `#/formel/${encodeURIComponent(route.id)}`
         : `#/${route.name}`
   window.location.hash = hash
+}
+
+/** Für Unterseiten: eine Ebene zurück (Browser-Verlauf, da jede Hash-Änderung einen Eintrag erzeugt). */
+export function zurueck(): void {
+  window.history.back()
 }
 
 export function useRoute(): Route {

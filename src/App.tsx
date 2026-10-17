@@ -3,11 +3,13 @@ import { Layout } from './components/Layout'
 import { Home } from './pages/Home'
 import { useRoute } from './lib/router'
 import { TransferProvider } from './lib/transfer'
+import { HeaderTitleProvider } from './lib/headerTitle'
 
-const Library = lazy(() => import('./pages/Library').then((m) => ({ default: m.Library })))
+const Rechner = lazy(() => import('./pages/Rechner').then((m) => ({ default: m.Rechner })))
+const Bibliothek = lazy(() => import('./pages/Bibliothek').then((m) => ({ default: m.Bibliothek })))
+const Einstellungen = lazy(() => import('./pages/Einstellungen').then((m) => ({ default: m.Einstellungen })))
 const History = lazy(() => import('./pages/History').then((m) => ({ default: m.History })))
 const UnitConverter = lazy(() => import('./pages/UnitConverter').then((m) => ({ default: m.UnitConverter })))
-const Pruefliste = lazy(() => import('./pages/Pruefliste').then((m) => ({ default: m.Pruefliste })))
 const KaufMieteVergleich = lazy(() =>
   import('./pages/KaufMieteVergleich').then((m) => ({ default: m.KaufMieteVergleich })),
 )
@@ -29,7 +31,7 @@ const CalculatorPage = lazy(() =>
 )
 
 function Ladeanzeige() {
-  return <div className="h-40 animate-pulse rounded-xl bg-paper-200 dark:bg-white/10" />
+  return <div className="h-40 animate-pulse rounded-2xl bg-paper-200" />
 }
 
 function Seite() {
@@ -38,14 +40,16 @@ function Seite() {
   switch (route.name) {
     case 'home':
       return <Home />
+    case 'rechner':
+      return <Rechner />
     case 'bibliothek':
-      return <Library />
+      return <Bibliothek />
+    case 'einstellungen':
+      return <Einstellungen />
     case 'verlauf':
       return <History />
     case 'einheiten':
       return <UnitConverter />
-    case 'pruefliste':
-      return <Pruefliste />
     case 'kauf-miete':
       return <KaufMieteVergleich />
     case 'pumpen-betriebspunkt':
@@ -70,11 +74,13 @@ function Seite() {
 export function App() {
   return (
     <TransferProvider>
-      <Layout>
-        <Suspense fallback={<Ladeanzeige />}>
-          <Seite />
-        </Suspense>
-      </Layout>
+      <HeaderTitleProvider>
+        <Layout>
+          <Suspense fallback={<Ladeanzeige />}>
+            <Seite />
+          </Suspense>
+        </Layout>
+      </HeaderTitleProvider>
     </TransferProvider>
   )
 }

@@ -8,6 +8,7 @@ import { useVerifizierung } from '../hooks/useVerifizierung'
 import { useFavoriten } from '../hooks/useFavoriten'
 import { useEinstellungen } from '../hooks/useEinstellungen'
 import { useTransfer } from '../hooks/useTransfer'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 import { FeldEingabe } from './FeldEingabe'
 import { SchichtenEingabe } from './SchichtenEingabe'
 import { KomponentenEingabe } from './KomponentenEingabe'
@@ -30,6 +31,7 @@ function variableById(formel: Formula, id: string): Variable {
 }
 
 export function Calculator({ formel }: { formel: Formula }) {
+  useSetHeaderTitle(formel.name)
   const gespeichert = useMemo<GespeicherterZustand>(
     () => (getLetzteEingaben(formel.id) as GespeicherterZustand) ?? {},
     [formel.id],
@@ -156,15 +158,15 @@ export function Calculator({ formel }: { formel: Formula }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">{formel.name}</h1>
-          <p className="text-sm text-stone-500 dark:text-stone-400">{formel.kategorie}</p>
+          <p className="text-[22px] font-bold text-stone-900">{formel.name}</p>
+          <p className="text-[13px] text-stone-500">{formel.kategorie}</p>
         </div>
         <button
           onClick={() => toggeln(formel.id)}
           aria-label="Favorit umschalten"
-          className="rounded-lg p-2 text-stone-400 hover:bg-paper-100 dark:hover:bg-white/10"
+          className="rounded-lg p-2 text-stone-400"
         >
-          <Star size={22} className={istFav ? 'fill-amber-400 text-amber-500' : ''} />
+          <Star size={22} className={istFav ? 'fill-amber-500 text-amber-500' : ''} />
         </button>
       </div>
 
@@ -180,7 +182,7 @@ export function Calculator({ formel }: { formel: Formula }) {
 
       {formel.zielgroessen.length > 1 && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-stone-700 dark:text-stone-300">Berechnen:</span>
+          <span className="text-[13px] font-semibold text-stone-500">Berechnen</span>
           <div className="flex flex-wrap gap-2">
             {formel.zielgroessen.map((zId) => {
               const v = variableById(formel, zId)
@@ -188,10 +190,8 @@ export function Calculator({ formel }: { formel: Formula }) {
                 <button
                   key={zId}
                   onClick={() => setZiel(zId)}
-                  className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    ziel === zId
-                      ? 'bg-accent-600 text-white'
-                      : 'bg-paper-100 text-stone-600 dark:bg-white/10 dark:text-stone-300'
+                  className={`rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors ${
+                    ziel === zId ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
                   }`}
                 >
                   {v.name}
@@ -247,15 +247,11 @@ export function Calculator({ formel }: { formel: Formula }) {
       </div>
 
       {rechenFehler && (
-        <div className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-300">
-          Kein Ergebnis: {rechenFehler}
-        </div>
+        <div className="rounded-xl bg-red-50 p-3 text-[14px] text-red-800">Kein Ergebnis: {rechenFehler}</div>
       )}
 
       {!alleAusgefuellt && !rechenFehler && (
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          Bitte alle Werte eingeben, um das Ergebnis zu berechnen.
-        </p>
+        <p className="text-[14px] text-stone-500">Bitte alle Werte eingeben, um das Ergebnis zu berechnen.</p>
       )}
 
       {ergebnis &&
@@ -283,23 +279,20 @@ export function Calculator({ formel }: { formel: Formula }) {
 
       <button
         onClick={() => setRechenwegOffen((o) => !o)}
-        className="flex items-center justify-between rounded-xl border border-paper-300 bg-white px-4 py-3 text-left text-sm font-medium text-stone-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-200"
+        className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-left text-[15px] font-medium text-stone-700"
       >
         Formel, Rechenweg, Gültigkeit &amp; Quelle
-        <ChevronDown
-          size={18}
-          className={`transition-transform ${rechenwegOffen ? 'rotate-180' : ''}`}
-        />
+        <ChevronDown size={18} className={`transition-transform ${rechenwegOffen ? 'rotate-180' : ''}`} />
       </button>
 
       {rechenwegOffen && (
-        <div className="flex flex-col gap-4 rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
+        <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 text-[14px]">
           <section>
-            <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Eingesetzte Werte</h2>
+            <h2 className="mb-1 font-semibold text-stone-800">Eingesetzte Werte</h2>
             {ergebnis ? (
               <ul className="flex flex-col gap-1">
                 {eingabeVariablen.map((v) => (
-                  <li key={v.id} className="flex justify-between gap-2 text-stone-600 dark:text-stone-400">
+                  <li key={v.id} className="flex justify-between gap-2 text-stone-600">
                     <span>{v.name}</span>
                     <span className="tabular-nums">
                       {v.id === schichtVariableId
@@ -313,7 +306,7 @@ export function Calculator({ formel }: { formel: Formula }) {
                 {ausgabeVariablen.map((v) => (
                   <li
                     key={v.id}
-                    className="flex justify-between gap-2 border-t border-paper-200 pt-1 font-medium text-stone-800 dark:border-white/10 dark:text-stone-200"
+                    className="flex justify-between gap-2 border-t border-paper-200 pt-1 font-medium text-stone-800"
                   >
                     <span>{v.name}</span>
                     <span className="tabular-nums">
@@ -323,19 +316,19 @@ export function Calculator({ formel }: { formel: Formula }) {
                 ))}
               </ul>
             ) : (
-              <p className="text-stone-500 dark:text-stone-400">Noch kein vollständiges Ergebnis.</p>
+              <p className="text-stone-500">Noch kein vollständiges Ergebnis.</p>
             )}
           </section>
 
           <section>
-            <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Gültigkeitsbereich</h2>
-            <p className="text-stone-600 dark:text-stone-400">{formel.gueltigkeit}</p>
+            <h2 className="mb-1 font-semibold text-stone-800">Gültigkeitsbereich</h2>
+            <p className="text-stone-600">{formel.gueltigkeit}</p>
           </section>
 
           {formel.annahmen.length > 0 && (
             <section>
-              <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Annahmen</h2>
-              <ul className="list-inside list-disc text-stone-600 dark:text-stone-400">
+              <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
+              <ul className="list-inside list-disc text-stone-600">
                 {formel.annahmen.map((a, i) => (
                   <li key={i}>{a}</li>
                 ))}
@@ -344,13 +337,13 @@ export function Calculator({ formel }: { formel: Formula }) {
           )}
 
           <section>
-            <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Quelle</h2>
-            <p className="flex flex-wrap items-center gap-2 text-stone-600 dark:text-stone-400">
+            <h2 className="mb-1 font-semibold text-stone-800">Quelle</h2>
+            <p className="flex flex-wrap items-center gap-2 text-stone-600">
               {formel.quelle.werk}
               {formel.quelle.auflage ? `, ${formel.quelle.auflage}` : ''}
               {formel.quelle.kapitel ? `, ${formel.quelle.kapitel}` : ''}
               {formel.quelle.unsicher && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
                   <Info size={12} />
                   Kapitelangabe unsicher
                 </span>

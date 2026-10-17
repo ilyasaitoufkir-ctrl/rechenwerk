@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react'
 import { dimensions, type DimensionId, dynamicToKinematic, toSI, fromSI } from '../units'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { useEinstellungen } from '../hooks/useEinstellungen'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
+import { UnitChip } from '../components/UnitChip'
+import { UnitPickerSheet } from '../components/UnitPickerSheet'
 
 const DIMENSION_REIHENFOLGE: DimensionId[] = [
   'length',
@@ -24,12 +27,15 @@ const DIMENSION_REIHENFOLGE: DimensionId[] = [
 ]
 
 export function UnitConverter() {
+  useSetHeaderTitle('Einheitenumrechner')
   const [dimensionId, setDimensionId] = useState<DimensionId>('pressure')
   const [eingabe, setEingabe] = useState('1')
   const [vonEinheit, setVonEinheit] = useState('bar')
   const [nachEinheit, setNachEinheit] = useState('Pa')
   const [eingabeTyp, setEingabeTyp] = useState<'absolut' | 'ueberdruck'>('absolut')
   const [ausgabeTyp, setAusgabeTyp] = useState<'absolut' | 'ueberdruck'>('absolut')
+  const [vonSheetOffen, setVonSheetOffen] = useState(false)
+  const [nachSheetOffen, setNachSheetOffen] = useState(false)
   const { ambientDruckPa, ambientAendern } = useEinstellungen()
 
   const dim = dimensions[dimensionId]
@@ -61,8 +67,6 @@ export function UnitConverter() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Einheitenumrechner</h1>
-
       <div className="flex flex-wrap gap-2">
         {DIMENSION_REIHENFOLGE.map((id) => (
           <button
@@ -71,7 +75,7 @@ export function UnitConverter() {
             className={`rounded-full px-3 py-1.5 text-xs font-medium ${
               dimensionId === id
                 ? 'bg-accent-600 text-white'
-                : 'bg-paper-100 text-stone-600 dark:bg-white/10 dark:text-stone-300'
+                : 'bg-paper-200 text-stone-600'
             }`}
           >
             {dimensions[id].label}
@@ -80,10 +84,10 @@ export function UnitConverter() {
       </div>
 
       {dimensionId === 'pressure' && (
-        <div className="flex flex-col gap-3 rounded-xl border border-paper-300 bg-white p-3 dark:border-white/10 dark:bg-white/5">
+        <div className="flex flex-col gap-3 rounded-2xl bg-white p-3">
           <DruckTypAuswahl label="Eingabe ist" wert={eingabeTyp} onChange={setEingabeTyp} />
           <DruckTypAuswahl label="Ausgabe ist" wert={ausgabeTyp} onChange={setAusgabeTyp} />
-          <label className="flex items-center justify-between gap-2 text-sm text-stone-600 dark:text-stone-400">
+          <label className="flex items-center justify-between gap-2 text-sm text-stone-600">
             Umgebungsdruck (Pa)
             <input
               type="text"
@@ -93,7 +97,7 @@ export function UnitConverter() {
                 const v = parseDecimal(e.target.value)
                 if (v !== null) ambientAendern(v)
               }}
-              className="w-28 rounded-lg border border-paper-300 bg-white px-2 py-1 text-right dark:border-white/15 dark:bg-white/10"
+              className="w-28 rounded-lg border border-paper-300 bg-white px-2 py-1 text-right"
             />
           </label>
         </div>
@@ -106,40 +110,37 @@ export function UnitConverter() {
             inputMode="decimal"
             value={eingabe}
             onChange={(e) => setEingabe(e.target.value)}
-            className="min-w-0 flex-1 rounded-xl border border-paper-300 bg-white px-4 py-3 text-lg outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+            className="min-w-0 flex-1 rounded-xl border border-paper-300 bg-white px-4 py-3 text-lg outline-none focus:border-accent-500"
           />
-          <select
-            value={vonEinheit}
-            onChange={(e) => setVonEinheit(e.target.value)}
-            className="rounded-xl border border-paper-300 bg-white px-3 py-3 dark:border-white/15 dark:bg-white/5"
-          >
-            {dim.units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.label}
-              </option>
-            ))}
-          </select>
+          <UnitChip label={dim.units.find((u) => u.id === vonEinheit)?.label ?? vonEinheit} onClick={() => setVonSheetOffen(true)} />
         </div>
 
         <div className="flex items-center justify-center text-stone-400">=</div>
 
-        <div className="flex gap-2 rounded-xl border border-sage-200 bg-sage-50 px-4 py-3 dark:border-sage-800/60 dark:bg-sage-900/20">
-          <span className="min-w-0 flex-1 overflow-x-auto text-lg font-semibold tabular-nums text-sage-800 dark:text-sage-200">
+        <div className="flex gap-2 rounded-2xl bg-accent-100 px-4 py-3">
+          <span className="min-w-0 flex-1 overflow-x-auto text-[22px] font-semibold tabular-nums text-accent-900">
             {ergebnis === null ? '—' : formatNumber(ergebnis, 6)}
           </span>
-          <select
-            value={nachEinheit}
-            onChange={(e) => setNachEinheit(e.target.value)}
-            className="rounded-lg border border-sage-300 bg-white px-2 py-1 text-sm dark:border-sage-700 dark:bg-white/5"
-          >
-            {dim.units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.label}
-              </option>
-            ))}
-          </select>
+          <UnitChip label={dim.units.find((u) => u.id === nachEinheit)?.label ?? nachEinheit} onClick={() => setNachSheetOffen(true)} />
         </div>
       </div>
+
+      <UnitPickerSheet
+        offen={vonSheetOffen}
+        onClose={() => setVonSheetOffen(false)}
+        einheiten={dim.units}
+        ausgewaehlt={vonEinheit}
+        onSelect={setVonEinheit}
+        titel="Von"
+      />
+      <UnitPickerSheet
+        offen={nachSheetOffen}
+        onClose={() => setNachSheetOffen(false)}
+        einheiten={dim.units}
+        ausgewaehlt={nachEinheit}
+        onSelect={setNachEinheit}
+        titel="Nach"
+      />
 
       <ViskositaetsUmrechner />
     </div>
@@ -157,7 +158,7 @@ function DruckTypAuswahl({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-sm text-stone-600 dark:text-stone-400">{label}</span>
+      <span className="text-sm text-stone-600">{label}</span>
       <div className="flex gap-2">
         {(['absolut', 'ueberdruck'] as const).map((m) => (
           <button
@@ -166,7 +167,7 @@ function DruckTypAuswahl({
             className={`rounded-full px-3 py-1.5 text-xs font-medium ${
               wert === m
                 ? 'bg-accent-600 text-white'
-                : 'bg-paper-100 text-stone-600 dark:bg-white/10 dark:text-stone-300'
+                : 'bg-paper-200 text-stone-600'
             }`}
           >
             {m === 'absolut' ? 'Absolut' : 'Überdruck'}
@@ -189,33 +190,33 @@ function ViskositaetsUmrechner() {
       : null
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-paper-300 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-      <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">
+    <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+      <h2 className="text-sm font-semibold text-stone-700">
         Dynamisch → kinematisch (ν = η / ρ)
       </h2>
       <div className="flex gap-2">
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+        <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
           η (mPa·s)
           <input
             type="text"
             inputMode="decimal"
             value={eta}
             onChange={(e) => setEta(e.target.value)}
-            className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+            className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
           />
         </label>
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+        <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
           ρ (kg/m³)
           <input
             type="text"
             inputMode="decimal"
             value={rho}
             onChange={(e) => setRho(e.target.value)}
-            className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+            className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
           />
         </label>
       </div>
-      <p className="text-sm text-stone-700 dark:text-stone-300">
+      <p className="text-sm text-stone-700">
         ν ={' '}
         {nu !== null ? (
           <span className="font-semibold tabular-nums">{formatNumber(nu * 1e6, 6)} mm²/s</span>

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { WarningBanner } from '../components/WarningBanner'
 import { LineChart } from '../components/LineChart'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 
 interface Eingaben {
   kaufpreis: string
@@ -39,12 +40,13 @@ function kumulierteKosten(
 }
 
 export function KaufMieteVergleich() {
+  useSetHeaderTitle('Kauf-/Miete-Vergleich')
   const [eingaben, setEingaben] = useState<Eingaben>(STANDARD)
 
   function feld(key: keyof Eingaben, label: string, einheit: string) {
     return (
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+        <span className="text-[14px] font-medium text-stone-700">
           {label} <span className="text-stone-400">({einheit})</span>
         </span>
         <input
@@ -52,7 +54,7 @@ export function KaufMieteVergleich() {
           inputMode="decimal"
           value={eingaben[key]}
           onChange={(e) => setEingaben((s) => ({ ...s, [key]: e.target.value }))}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-[16px] outline-none focus:border-accent-500"
         />
       </label>
     )
@@ -95,12 +97,7 @@ export function KaufMieteVergleich() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Kauf-/Miete-Vergleich</h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          Kumulierter, diskontierter Kostenverlauf über die Nutzungsdauer
-        </p>
-      </div>
+      <p className="text-[14px] text-stone-500">Kumulierter, diskontierter Kostenverlauf über die Nutzungsdauer</p>
 
       <div className="grid grid-cols-2 gap-4">
         {feld('kaufpreis', 'Kaufpreis', '€')}
@@ -121,12 +118,12 @@ export function KaufMieteVergleich() {
           reihen={[
             {
               label: 'Kauf',
-              farbe: '#48656c',
+              farbe: '#0f4c5c',
               punkte: werte.kauf.map((v, t) => ({ x: t, y: v })),
             },
             {
               label: 'Miete',
-              farbe: '#6c8c5c',
+              farbe: '#2f7d5b',
               punkte: werte.miete.map((v, t) => ({ x: t, y: v })),
             },
           ]}
@@ -134,39 +131,39 @@ export function KaufMieteVergleich() {
       )}
 
       {werte && (
-        <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
+        <div className="rounded-2xl bg-white p-4 text-[14px]">
           {werte.breakEvenJahr === null ? (
-            <p className="text-stone-600 dark:text-stone-400">
+            <p className="text-stone-600">
               Innerhalb der Nutzungsdauer von {werte.n} Jahren amortisiert sich der Kauf gegenüber der Miete
               nicht.
             </p>
           ) : werte.breakEvenJahr === 0 ? (
-            <p className="text-stone-600 dark:text-stone-400">Der Kauf ist von Anfang an günstiger als die Miete.</p>
+            <p className="text-stone-600">Der Kauf ist von Anfang an günstiger als die Miete.</p>
           ) : (
-            <p className="text-stone-600 dark:text-stone-400">
+            <p className="text-stone-600">
               Break-even nach ca.{' '}
-              <span className="font-semibold text-stone-900 dark:text-stone-100">{werte.breakEvenJahr} Jahren</span>{' '}
+              <span className="font-semibold text-stone-900">{werte.breakEvenJahr} Jahren</span>{' '}
               - ab dann ist der Kauf günstiger als die Miete.
             </p>
           )}
-          <p className="mt-2 flex justify-between text-stone-600 dark:text-stone-400">
+          <p className="mt-2 flex justify-between text-stone-600">
             <span>Kumulierte Kosten Kauf nach {werte.n} Jahren</span>
-            <span className="font-medium tabular-nums text-stone-900 dark:text-stone-100">
+            <span className="font-medium tabular-nums text-stone-900">
               {formatNumber(werte.kauf[werte.n], 5)} €
             </span>
           </p>
-          <p className="flex justify-between text-stone-600 dark:text-stone-400">
+          <p className="flex justify-between text-stone-600">
             <span>Kumulierte Kosten Miete nach {werte.n} Jahren</span>
-            <span className="font-medium tabular-nums text-stone-900 dark:text-stone-100">
+            <span className="font-medium tabular-nums text-stone-900">
               {formatNumber(werte.miete[werte.n], 5)} €
             </span>
           </p>
         </div>
       )}
 
-      <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Annahmen</h2>
-        <ul className="list-inside list-disc text-stone-600 dark:text-stone-400">
+      <div className="rounded-2xl bg-white p-4 text-[14px]">
+        <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
+        <ul className="list-inside list-disc text-stone-600">
           <li>Wartungs- und Mietkosten jährlich konstant, jeweils am Jahresende fällig (nachschüssig)</li>
           <li>Restwert fließt am Ende der Nutzungsdauer einmalig als Ertrag ein</li>
           <li>Alle künftigen Zahlungen mit dem Kalkulationszins auf heute abgezinst</li>

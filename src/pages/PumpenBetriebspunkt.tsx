@@ -4,6 +4,7 @@ import { parseDecimal, formatNumber } from '../lib/format'
 import { quadratischeRegression } from '../lib/statistik'
 import { WarningBanner } from '../components/WarningBanner'
 import { LineChart } from '../components/LineChart'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 
 interface PumpenPunkt {
   v: string
@@ -18,6 +19,7 @@ const STANDARD_PUNKTE: PumpenPunkt[] = [
 ]
 
 export function PumpenBetriebspunkt() {
+  useSetHeaderTitle('Pumpen-Betriebspunkt')
   const [hStat, setHStat] = useState('5')
   const [vRef, setVRef] = useState('20')
   const [hVerlustRef, setHVerlustRef] = useState('3')
@@ -104,85 +106,82 @@ export function PumpenBetriebspunkt() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Pumpen-Betriebspunkt</h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          Schnittpunkt von Anlagen- und Pumpenkennlinie, Volumenstrom in m³/h, Förderhöhe in m
-        </p>
-      </div>
+      <p className="text-[14px] text-stone-500">
+        Schnittpunkt von Anlagen- und Pumpenkennlinie, Volumenstrom in m³/h, Förderhöhe in m
+      </p>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-paper-300 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-        <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">
+      <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+        <h2 className="text-sm font-semibold text-stone-700">
           Anlagenkennlinie: H_A = H_stat + Δh_V,ref · (V̇/V̇_ref)²
         </h2>
         <div className="grid grid-cols-3 gap-3">
-          <label className="flex flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+          <label className="flex flex-col gap-1 text-xs text-stone-500">
             H_stat (m)
             <input
               type="text"
               inputMode="decimal"
               value={hStat}
               onChange={(e) => setHStat(e.target.value)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+          <label className="flex flex-col gap-1 text-xs text-stone-500">
             V̇_ref (m³/h)
             <input
               type="text"
               inputMode="decimal"
               value={vRef}
               onChange={(e) => setVRef(e.target.value)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+          <label className="flex flex-col gap-1 text-xs text-stone-500">
             Δh_V,ref (m)
             <input
               type="text"
               inputMode="decimal"
               value={hVerlustRef}
               onChange={(e) => setHVerlustRef(e.target.value)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
             />
           </label>
         </div>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
+        <p className="text-xs text-stone-500">
           Δh_V,ref: Verlusthöhe bei V̇_ref, z. B. aus "Druckverlust nach Darcy-Weisbach" (Druckhöhe h)
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-paper-300 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-        <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">
+      <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+        <h2 className="text-sm font-semibold text-stone-700">
           Pumpenkennlinie (mindestens 3 Datenblattpunkte)
         </h2>
         {punkte.map((p, i) => (
           <div key={i} className="flex items-end gap-2">
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
               V̇ (m³/h)
               <input
                 type="text"
                 inputMode="decimal"
                 value={p.v}
                 onChange={(e) => punktAendern(i, { v: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
               />
             </label>
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
               H (m)
               <input
                 type="text"
                 inputMode="decimal"
                 value={p.h}
                 onChange={(e) => punktAendern(i, { h: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
               />
             </label>
             <button
               onClick={() => punktEntfernen(i)}
               disabled={punkte.length <= 3}
               aria-label="Punkt entfernen"
-              className="shrink-0 rounded-lg p-2.5 text-stone-400 hover:bg-paper-100 disabled:opacity-30 dark:hover:bg-white/10"
+              className="shrink-0 rounded-lg p-2.5 text-stone-400 hover:bg-paper-100 disabled:opacity-30"
             >
               <Trash2 size={18} />
             </button>
@@ -190,7 +189,7 @@ export function PumpenBetriebspunkt() {
         ))}
         <button
           onClick={punktHinzufuegen}
-          className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-50 dark:text-accent-300 dark:hover:bg-accent-900/30"
+          className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-50"
         >
           <Plus size={14} />
           Punkt hinzufügen
@@ -206,9 +205,9 @@ export function PumpenBetriebspunkt() {
           <LineChart
             ariaLabel="Anlagen- und Pumpenkennlinie mit Betriebspunkt"
             reihen={[
-              { label: 'Anlagenkennlinie', farbe: '#48656c', punkte: ergebnis.anlage },
-              { label: 'Pumpenkennlinie', farbe: '#6c8c5c', punkte: ergebnis.pumpe },
-              { label: 'Datenpunkte', farbe: '#9f7b3b', punkte: ergebnis.datenpunkte, typ: 'punkte' },
+              { label: 'Anlagenkennlinie', farbe: '#0f4c5c', punkte: ergebnis.anlage },
+              { label: 'Pumpenkennlinie', farbe: '#2f7d5b', punkte: ergebnis.pumpe },
+              { label: 'Datenpunkte', farbe: '#b7791f', punkte: ergebnis.datenpunkte, typ: 'punkte' },
             ]}
             markierung={
               ergebnis.schnittpunkt
@@ -216,14 +215,14 @@ export function PumpenBetriebspunkt() {
                 : undefined
             }
           />
-          <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
+          <div className="rounded-2xl bg-white p-4 text-sm">
             {ergebnis.schnittpunkt ? (
-              <p className="text-stone-700 dark:text-stone-300">
+              <p className="text-stone-700">
                 Betriebspunkt: <span className="font-semibold">V̇ = {formatNumber(ergebnis.schnittpunkt.v, 4)} m³/h</span>,{' '}
                 <span className="font-semibold">H = {formatNumber(ergebnis.schnittpunkt.h, 4)} m</span>
               </p>
             ) : (
-              <p className="text-stone-600 dark:text-stone-400">
+              <p className="text-stone-600">
                 Anlagen- und Pumpenkennlinie schneiden sich im eingegebenen Datenbereich nicht.
               </p>
             )}
@@ -231,7 +230,7 @@ export function PumpenBetriebspunkt() {
         </>
       )}
 
-      <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-200">
+      <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
         <Info size={16} className="mt-0.5 shrink-0" />
         <p>
           Viskositätskorrektur für Kreiselpumpen ist hier bewusst nicht implementiert. Bei zähen Medien
@@ -241,9 +240,9 @@ export function PumpenBetriebspunkt() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Annahmen</h2>
-        <ul className="list-inside list-disc text-stone-600 dark:text-stone-400">
+      <div className="rounded-2xl bg-white p-4 text-sm">
+        <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
+        <ul className="list-inside list-disc text-stone-600">
           <li>Anlagenverlust steigt quadratisch mit dem Volumenstrom (Darcy-Weisbach-Annahme)</li>
           <li>Pumpenkennlinie als quadratische Ausgleichskurve durch die Datenblattpunkte angenähert</li>
           <li>Kein Viskositätseinfluss (siehe Hinweis oben)</li>

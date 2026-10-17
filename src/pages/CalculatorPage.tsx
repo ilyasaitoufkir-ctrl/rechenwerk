@@ -1,19 +1,21 @@
 import { getFormel } from '../formulas/registry'
 import { Calculator } from '../components/Calculator'
 import { navigiere } from '../lib/router'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 
 export function CalculatorPage({ id }: { id: string }) {
   const formel = getFormel(id)
+  useSetHeaderTitle(formel ? formel.name : 'Nicht gefunden')
 
   if (!formel) {
     return (
       <div className="flex flex-col items-center gap-3 py-16 text-center">
-        <p className="text-stone-600 dark:text-stone-400">Formel „{id}“ wurde nicht gefunden.</p>
+        <p className="text-[15px] text-stone-600">Formel „{id}“ wurde nicht gefunden.</p>
         <button
-          onClick={() => navigiere({ name: 'bibliothek' })}
-          className="rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700"
+          onClick={() => navigiere({ name: 'rechner' })}
+          className="rounded-xl bg-accent-600 px-4 py-2 text-[14px] font-medium text-white"
         >
-          Zur Formelbibliothek
+          Zu den Rechnern
         </button>
       </div>
     )

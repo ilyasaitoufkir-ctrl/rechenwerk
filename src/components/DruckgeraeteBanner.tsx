@@ -7,8 +7,8 @@ import { ShieldAlert } from 'lucide-react'
  */
 export function DruckgeraeteBanner() {
   return (
-    <div className="flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-200">
-      <ShieldAlert size={18} className="mt-0.5 shrink-0" />
+    <div className="flex items-start gap-2 rounded-xl bg-red-50 p-3 text-[13px] text-red-900">
+      <ShieldAlert size={17} className="mt-0.5 shrink-0" />
       <p>
         Vorauslegung und Plausibilitätsprüfung. Ersetzt keine normgerechte Berechnung und keine
         Prüfung durch eine zugelassene Stelle.

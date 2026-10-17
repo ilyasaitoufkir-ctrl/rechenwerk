@@ -3,6 +3,8 @@ import { Plus, Trash2 } from 'lucide-react'
 import { parseDecimal } from '../lib/format'
 import { toSI, dimensions } from '../units'
 import type { KomponentenFeld } from '../types/formula'
+import { UnitChip } from './UnitChip'
+import { UnitPickerSheet } from './UnitPickerSheet'
 
 type Zeile = Record<string, { wert: string; einheit: string }>
 
@@ -20,6 +22,7 @@ interface Props {
 
 export function KomponentenEingabe({ feld, onSummenChange }: Props) {
   const [zeilen, setZeilen] = useState<Zeile[]>([leereZeile(feld), leereZeile(feld)])
+  const [offenesSheet, setOffenesSheet] = useState<{ zeile: number; spalte: string } | null>(null)
   const idBase = useId()
 
   useEffect(() => {
@@ -79,15 +82,17 @@ export function KomponentenEingabe({ feld, onSummenChange }: Props) {
     setZeilen((zs) => (zs.length > 1 ? zs.filter((_, idx) => idx !== i) : zs))
   }
 
+  const sheetSpalte = offenesSheet ? feld.spalten.find((s) => s.id === offenesSheet.spalte) : undefined
+
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-stone-700 dark:text-stone-300">Komponenten</span>
+      <span className="text-[15px] font-medium text-stone-700">Komponenten</span>
       <div className="flex flex-col gap-3">
         {zeilen.map((zeile, i) => (
-          <div key={`${idBase}-${i}`} className="flex items-end gap-2 rounded-lg border border-paper-200 p-2 dark:border-white/10">
+          <div key={`${idBase}-${i}`} className="flex items-end gap-2 rounded-xl bg-paper-100 p-2">
             <div className="flex min-w-0 flex-1 flex-wrap gap-2">
               {feld.spalten.map((s) => (
-                <label key={s.id} className="flex min-w-[6rem] flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+                <label key={s.id} className="flex min-w-[6rem] flex-1 flex-col gap-1 text-[12px] text-stone-500">
                   {s.name}
                   <div className="flex gap-1">
                     <input
@@ -96,20 +101,16 @@ export function KomponentenEingabe({ feld, onSummenChange }: Props) {
                       value={zeile[s.id]?.wert ?? ''}
                       onChange={(e) => zeileAendern(i, s.id, { wert: e.target.value })}
                       placeholder="0"
-                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-2 py-2 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-2 py-2 text-[16px] outline-none focus:border-accent-500"
                     />
                     {dimensions[s.dimension].units.length > 1 ? (
-                      <select
-                        value={zeile[s.id]?.einheit ?? s.defaultUnit}
-                        onChange={(e) => zeileAendern(i, s.id, { einheit: e.target.value })}
-                        className="rounded-lg border border-paper-300 bg-white px-1 text-sm dark:border-white/15 dark:bg-white/5"
-                      >
-                        {dimensions[s.dimension].units.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.label}
-                          </option>
-                        ))}
-                      </select>
+                      <UnitChip
+                        label={
+                          dimensions[s.dimension].units.find((u) => u.id === (zeile[s.id]?.einheit ?? s.defaultUnit))
+                            ?.label ?? s.defaultUnit
+                        }
+                        onClick={() => setOffenesSheet({ zeile: i, spalte: s.id })}
+                      />
                     ) : null}
                   </div>
                 </label>
@@ -119,7 +120,7 @@ export function KomponentenEingabe({ feld, onSummenChange }: Props) {
               onClick={() => zeileEntfernen(i)}
               disabled={zeilen.length === 1}
               aria-label="Komponente entfernen"
-              className="shrink-0 rounded-lg p-2.5 text-stone-400 hover:bg-paper-100 disabled:opacity-30 dark:hover:bg-white/10"
+              className="shrink-0 rounded-lg p-2.5 text-stone-400 disabled:opacity-30"
             >
               <Trash2 size={18} />
             </button>
@@ -128,11 +129,22 @@ export function KomponentenEingabe({ feld, onSummenChange }: Props) {
       </div>
       <button
         onClick={zeileHinzufuegen}
-        className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-50 dark:text-accent-300 dark:hover:bg-accent-900/30"
+        className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-accent-700"
       >
         <Plus size={14} />
         Komponente hinzufügen
       </button>
+
+      <UnitPickerSheet
+        offen={offenesSheet !== null}
+        onClose={() => setOffenesSheet(null)}
+        einheiten={sheetSpalte ? dimensions[sheetSpalte.dimension].units : []}
+        ausgewaehlt={offenesSheet ? (zeilen[offenesSheet.zeile]?.[offenesSheet.spalte]?.einheit ?? '') : ''}
+        onSelect={(e) => {
+          if (offenesSheet) zeileAendern(offenesSheet.zeile, offenesSheet.spalte, { einheit: e })
+        }}
+        titel={sheetSpalte?.name}
+      />
     </div>
   )
 }

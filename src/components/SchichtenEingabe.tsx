@@ -59,11 +59,11 @@ export function SchichtenEingabe({ feld, name, onSummeChange }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-stone-700 dark:text-stone-300">{name}</span>
+      <span className="text-[15px] font-medium text-stone-700">{name}</span>
       <div className="flex flex-col gap-2">
         {zeilen.map((z, i) => (
           <div key={`${idBase}-${i}`} className="flex items-end gap-2">
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <label className="flex min-w-0 flex-1 flex-col gap-1 text-[12px] text-stone-500">
               {feld.dickeName} (mm)
               <input
                 type="text"
@@ -71,10 +71,10 @@ export function SchichtenEingabe({ feld, name, onSummeChange }: Props) {
                 value={z.dickeMm}
                 onChange={(e) => zeileAendern(i, { dickeMm: e.target.value })}
                 placeholder="0"
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-[16px] outline-none focus:border-accent-500"
               />
             </label>
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <label className="flex min-w-0 flex-1 flex-col gap-1 text-[12px] text-stone-500">
               {feld.leitfaehigkeitName} (W/(m·K))
               <input
                 type="text"
@@ -82,14 +82,14 @@ export function SchichtenEingabe({ feld, name, onSummeChange }: Props) {
                 value={z.leitfaehigkeit}
                 onChange={(e) => zeileAendern(i, { leitfaehigkeit: e.target.value })}
                 placeholder="0"
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-[16px] outline-none focus:border-accent-500"
               />
             </label>
             <button
               onClick={() => zeileEntfernen(i)}
               disabled={zeilen.length === 1}
               aria-label="Schicht entfernen"
-              className="shrink-0 rounded-lg p-2.5 text-stone-400 hover:bg-paper-100 disabled:opacity-30 dark:hover:bg-white/10"
+              className="shrink-0 rounded-lg p-2.5 text-stone-400 disabled:opacity-30"
             >
               <Trash2 size={18} />
             </button>
@@ -98,7 +98,7 @@ export function SchichtenEingabe({ feld, name, onSummeChange }: Props) {
       </div>
       <button
         onClick={zeileHinzufuegen}
-        className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-50 dark:text-accent-300 dark:hover:bg-accent-900/30"
+        className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-accent-700"
       >
         <Plus size={14} />
         Schicht hinzufügen

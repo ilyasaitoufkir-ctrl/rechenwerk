@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'Rechenwerk',
         description:
           'Verfahrenstechnik-Rechner mit Formelbibliothek, Quellenangaben und Rechenweg.',
-        theme_color: '#4b5d67',
-        background_color: '#faf9f6',
+        theme_color: '#f5f5f3',
+        background_color: '#f5f5f3',
         display: 'standalone',
         start_url: '/',
         icons: [
@@ -40,5 +40,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    // e2e/ läuft über Playwright (npm run test:e2e), nicht über Vitest.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
   },
 })

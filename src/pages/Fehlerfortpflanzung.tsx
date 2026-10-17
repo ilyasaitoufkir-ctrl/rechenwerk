@@ -5,7 +5,10 @@ import { toSI, fromSI, dimensions } from '../units'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { SearchBar } from '../components/SearchBar'
 import { WarningBanner } from '../components/WarningBanner'
+import { UnitChip } from '../components/UnitChip'
+import { UnitPickerSheet } from '../components/UnitPickerSheet'
 import { fehlerfortpflanzung } from '../lib/fehlerfortpflanzung'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 
 /**
  * Generische Gaußsche Fehlerfortpflanzung über eine beliebige Formel der
@@ -27,10 +30,12 @@ function einheitenSkalierung(dimension: Variable['dimension'], einheit: string):
 }
 
 export function Fehlerfortpflanzung() {
+  useSetHeaderTitle('Fehlerfortpflanzung')
   const [suche, setSuche] = useState('')
   const [formel, setFormel] = useState<Formula | null>(null)
   const [ziel, setZiel] = useState<string>('')
   const [eingaben, setEingaben] = useState<Record<string, Eingabe>>({})
+  const [offenesSheet, setOffenesSheet] = useState<string | null>(null)
 
   const treffer = useMemo(() => {
     const q = suche.trim().toLowerCase()
@@ -102,12 +107,7 @@ export function Fehlerfortpflanzung() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Fehlerfortpflanzung</h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          Gaußsche Fehlerfortpflanzung für jede Formel der Registry
-        </p>
-      </div>
+      <p className="text-[14px] text-stone-500">Gaußsche Fehlerfortpflanzung für jede Formel der Registry</p>
 
       <SearchBar value={suche} onChange={setSuche} placeholder="Formel suchen…" />
       {treffer.length > 0 && (
@@ -116,10 +116,10 @@ export function Fehlerfortpflanzung() {
             <button
               key={f.id}
               onClick={() => formelWaehlen(f)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-left text-sm hover:border-accent-300 dark:border-white/10 dark:bg-white/5"
+              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-left text-sm hover:border-accent-300"
             >
-              <span className="font-medium text-stone-900 dark:text-stone-100">{f.name}</span>
-              <span className="ml-2 text-xs text-stone-500 dark:text-stone-400">{f.kategorie}</span>
+              <span className="font-medium text-stone-900">{f.name}</span>
+              <span className="ml-2 text-xs text-stone-500">{f.kategorie}</span>
             </button>
           ))}
         </div>
@@ -127,8 +127,8 @@ export function Fehlerfortpflanzung() {
 
       {formel && (
         <>
-          <div className="rounded-xl border border-paper-300 bg-white p-3 dark:border-white/10 dark:bg-white/5">
-            <p className="text-sm font-medium text-stone-900 dark:text-stone-100">{formel.name}</p>
+          <div className="rounded-2xl bg-white p-3">
+            <p className="text-sm font-medium text-stone-900">{formel.name}</p>
             {formel.zielgroessen.length > 1 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {formel.zielgroessen.map((zId) => (
@@ -136,7 +136,7 @@ export function Fehlerfortpflanzung() {
                     key={zId}
                     onClick={() => zielWaehlen(zId)}
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
-                      ziel === zId ? 'bg-accent-600 text-white' : 'bg-paper-100 text-stone-600 dark:bg-white/10 dark:text-stone-300'
+                      ziel === zId ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
                     }`}
                   >
                     {formel.variablen.find((v) => v.id === zId)?.name}
@@ -151,8 +151,8 @@ export function Fehlerfortpflanzung() {
               const e = eingaben[v.id] ?? { wertText: '', unsicherheitText: '', einheit: v.defaultUnit }
               const dim = dimensions[v.dimension]
               return (
-                <div key={v.id} className="flex flex-col gap-1.5 rounded-xl border border-paper-300 bg-white p-3 dark:border-white/10 dark:bg-white/5">
-                  <span className="text-sm font-medium text-stone-700 dark:text-stone-300">{v.name}</span>
+                <div key={v.id} className="flex flex-col gap-1.5 rounded-2xl bg-white p-3">
+                  <span className="text-sm font-medium text-stone-700">{v.name}</span>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -160,7 +160,7 @@ export function Fehlerfortpflanzung() {
                       placeholder="Wert"
                       value={e.wertText}
                       onChange={(ev) => setEingaben((eg) => ({ ...eg, [v.id]: { ...e, wertText: ev.target.value } }))}
-                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
                     />
                     <input
                       type="text"
@@ -168,22 +168,15 @@ export function Fehlerfortpflanzung() {
                       placeholder="± Unsicherheit"
                       value={e.unsicherheitText}
                       onChange={(ev) => setEingaben((eg) => ({ ...eg, [v.id]: { ...e, unsicherheitText: ev.target.value } }))}
-                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base dark:border-white/15 dark:bg-white/5"
+                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
                     />
                     {dim.units.length > 1 ? (
-                      <select
-                        value={e.einheit}
-                        onChange={(ev) => setEingaben((eg) => ({ ...eg, [v.id]: { ...e, einheit: ev.target.value } }))}
-                        className="rounded-lg border border-paper-300 bg-white px-2 text-sm dark:border-white/15 dark:bg-white/5"
-                      >
-                        {dim.units.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.label}
-                          </option>
-                        ))}
-                      </select>
+                      <UnitChip
+                        label={dim.units.find((u) => u.id === e.einheit)?.label ?? e.einheit}
+                        onClick={() => setOffenesSheet(v.id)}
+                      />
                     ) : (
-                      <span className="flex items-center px-1 text-sm text-stone-500 dark:text-stone-400">{dim.units[0]?.label}</span>
+                      <span className="flex items-center px-1 text-sm text-stone-500">{dim.units[0]?.label}</span>
                     )}
                   </div>
                 </div>
@@ -191,14 +184,33 @@ export function Fehlerfortpflanzung() {
             })}
           </div>
 
+          <UnitPickerSheet
+            offen={offenesSheet !== null}
+            onClose={() => setOffenesSheet(null)}
+            einheiten={offenesSheet ? dimensions[eingabeVariablen.find((v) => v.id === offenesSheet)!.dimension].units : []}
+            ausgewaehlt={offenesSheet ? (eingaben[offenesSheet]?.einheit ?? '') : ''}
+            onSelect={(einheit) => {
+              if (!offenesSheet) return
+              const id = offenesSheet
+              setEingaben((eg) => ({
+                ...eg,
+                [id]: {
+                  ...(eg[id] ?? { wertText: '', unsicherheitText: '', einheit }),
+                  einheit,
+                },
+              }))
+            }}
+            titel={offenesSheet ? eingabeVariablen.find((v) => v.id === offenesSheet)?.name : undefined}
+          />
+
           {!ergebnis && (
             <WarningBanner nachrichten={['Für alle Eingaben Wert und Unsicherheit (≥ 0) angeben.']} variante="info" />
           )}
 
           {ergebnis && zielVariable && (
-            <div className="rounded-2xl border border-sage-200 bg-sage-50 p-4 dark:border-sage-800/60 dark:bg-sage-900/20">
-              <p className="text-sm font-medium text-sage-700 dark:text-sage-300">{zielVariable.name}</p>
-              <p className="text-2xl font-semibold tabular-nums text-stone-900 dark:text-stone-100">
+            <div className="rounded-2xl border border-sage-200 bg-sage-50 p-4">
+              <p className="text-sm font-medium text-sage-700">{zielVariable.name}</p>
+              <p className="text-2xl font-semibold tabular-nums text-stone-900">
                 {formatNumber(fromSI(ergebnis.basis, zielVariable.dimension, zielVariable.defaultUnit), 5)}
                 {' ± '}
                 {formatNumber(
@@ -209,17 +221,17 @@ export function Fehlerfortpflanzung() {
               </p>
 
               <div className="mt-4 flex flex-col gap-2">
-                <p className="text-xs font-medium text-stone-600 dark:text-stone-400">Beitrag je Eingabe zur Gesamtunsicherheit</p>
+                <p className="text-xs font-medium text-stone-600">Beitrag je Eingabe zur Gesamtunsicherheit</p>
                 {ergebnis.beitraege.map((b) => {
                   const anteil =
                     ergebnis.kombinierteUnsicherheitSI > 0 ? (b.beitragSI ** 2 / ergebnis.kombinierteUnsicherheitSI ** 2) * 100 : 0
                   return (
                     <div key={b.id} className="flex flex-col gap-0.5">
-                      <div className="flex justify-between text-xs text-stone-600 dark:text-stone-400">
+                      <div className="flex justify-between text-xs text-stone-600">
                         <span>{b.name}</span>
                         <span className="tabular-nums">{formatNumber(anteil, 3)}%</span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-paper-200 dark:bg-white/10">
+                      <div className="h-2 overflow-hidden rounded-full bg-paper-200">
                         <div className="h-full rounded-full bg-accent-500" style={{ width: `${anteil}%` }} />
                       </div>
                     </div>

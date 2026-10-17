@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { WarningBanner } from '../components/WarningBanner'
 import { LineChart, type ChartPunkt } from '../components/LineChart'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 import {
   gleichgewichtY,
   fenskeMindeststufenzahl,
@@ -34,18 +35,19 @@ interface Eingaben {
 const STANDARD: Eingaben = { alpha: '2.5', xF: '0.5', xD: '0.95', xB: '0.05', q: '1', R: '2' }
 
 export function McCabeThiele() {
+  useSetHeaderTitle('McCabe-Thiele-Diagramm')
   const [eingaben, setEingaben] = useState<Eingaben>(STANDARD)
 
   function feld(key: keyof Eingaben, label: string) {
     return (
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-stone-700 dark:text-stone-300">{label}</span>
+        <span className="text-sm font-medium text-stone-700">{label}</span>
         <input
           type="text"
           inputMode="decimal"
           value={eingaben[key]}
           onChange={(e) => setEingaben((s) => ({ ...s, [key]: e.target.value }))}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
         />
       </label>
     )
@@ -84,12 +86,7 @@ export function McCabeThiele() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">McCabe-Thiele-Diagramm</h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          Grafische Stufenkonstruktion für die binäre Rektifikation
-        </p>
-      </div>
+      <p className="text-[14px] text-stone-500">Grafische Stufenkonstruktion für die binäre Rektifikation</p>
 
       <div className="grid grid-cols-2 gap-4">
         {feld('alpha', 'Relative Flüchtigkeit α')}
@@ -105,15 +102,15 @@ export function McCabeThiele() {
       {'konstruktion' in ergebnis && (
         <>
           <Diagramm ergebnis={ergebnis} />
-          <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm dark:border-sage-800/60 dark:bg-sage-900/20">
-            <p className="text-stone-700 dark:text-stone-300">
+          <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm">
+            <p className="text-stone-700">
               Theoretische Stufenzahl:{' '}
               <span className="font-semibold">{ergebnis.konstruktion.theoretischeStufenzahl}</span>
             </p>
-            <p className="text-stone-700 dark:text-stone-300">
+            <p className="text-stone-700">
               Zulaufstufe: <span className="font-semibold">{ergebnis.konstruktion.zulaufstufe}</span>
             </p>
-            <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">
+            <p className="mt-2 text-xs text-stone-500">
               Zum Vergleich: R_min ≈ {formatNumber(ergebnis.Rmin, 4)}, N_min (Fenske, totaler Rücklauf) ≈{' '}
               {formatNumber(ergebnis.Nmin, 4)}
             </p>
@@ -121,9 +118,9 @@ export function McCabeThiele() {
         </>
       )}
 
-      <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Annahmen</h2>
-        <ul className="list-inside list-disc text-stone-600 dark:text-stone-400">
+      <div className="rounded-2xl bg-white p-4 text-sm">
+        <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
+        <ul className="list-inside list-disc text-stone-600">
           <li>Binäres Gemisch, konstante relative Flüchtigkeit α</li>
           <li>Konstanter molarer Rücklauf (CMO) in Verstärkungs- und Abtriebsteil</li>
           <li>Reboiler als theoretische Stufe mitgezählt, Totalkondensator (keine eigene Stufe)</li>
@@ -152,10 +149,10 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
     <LineChart
       ariaLabel="McCabe-Thiele-Diagramm"
       reihen={[
-        { label: 'Gleichgewicht', farbe: '#9f7b3b', punkte: gleichgewicht },
+        { label: 'Gleichgewicht', farbe: '#b7791f', punkte: gleichgewicht },
         {
           label: 'Diagonale',
-          farbe: '#c7d4d6',
+          farbe: '#c7dbe0',
           punkte: [
             { x: 0, y: 0 },
             { x: 1, y: 1 },
@@ -163,7 +160,7 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
         },
         {
           label: 'Verstärkung',
-          farbe: '#48656c',
+          farbe: '#0f4c5c',
           punkte: [
             { x: schnitt.x, y: schnitt.y },
             { x: xD, y: xD },
@@ -171,7 +168,7 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
         },
         {
           label: 'Abtrieb',
-          farbe: '#6c8c5c',
+          farbe: '#2f7d5b',
           punkte: [
             { x: xB, y: xB },
             { x: schnitt.x, y: schnitt.y },
@@ -179,13 +176,13 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
         },
         {
           label: 'q-Linie',
-          farbe: '#c084fc',
+          farbe: '#53565b',
           punkte: [
             { x: xF, y: xF },
             { x: schnitt.x, y: schnitt.y },
           ],
         },
-        { label: 'Stufen', farbe: '#b0463b', punkte: treppe },
+        { label: 'Stufen', farbe: '#b42318', punkte: treppe },
       ]}
     />
   )

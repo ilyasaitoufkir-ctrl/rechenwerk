@@ -76,31 +76,31 @@ export function ToolCallCard({
   const formelErgebnis = name === 'formel_berechnen' && !istFehler ? (ergebnis as FormelBerechnenErgebnis) : undefined
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-xl border border-paper-300 bg-paper-50 text-sm dark:border-white/10 dark:bg-white/[0.03]">
+    <div className="flex flex-col gap-1.5 rounded-xl border border-paper-300 bg-paper-50 text-sm">
       <button onClick={() => setOffen((o) => !o)} className="flex w-full items-center gap-2 px-3 py-2.5 text-left">
-        <Icon size={16} className="shrink-0 text-accent-600 dark:text-accent-300" />
-        <span className="min-w-0 flex-1 truncate font-medium text-stone-700 dark:text-stone-300">{label}</span>
+        <Icon size={16} className="shrink-0 text-accent-600" />
+        <span className="min-w-0 flex-1 truncate font-medium text-stone-700">{label}</span>
         {istFehler ? (
           <XCircle size={16} className="shrink-0 text-red-500" />
         ) : (
-          <CheckCircle2 size={16} className="shrink-0 text-sage-600 dark:text-sage-400" />
+          <CheckCircle2 size={16} className="shrink-0 text-sage-600" />
         )}
         <ChevronDown size={16} className={`shrink-0 text-stone-400 transition-transform ${offen ? 'rotate-180' : ''}`} />
       </button>
 
-      {kurz && !offen && <p className="px-3 pb-2 -mt-1.5 truncate text-xs text-stone-500 dark:text-stone-400">{kurz}</p>}
+      {kurz && !offen && <p className="px-3 pb-2 -mt-1.5 truncate text-xs text-stone-500">{kurz}</p>}
 
       {offen && (
-        <div className="flex flex-col gap-2 border-t border-paper-200 px-3 py-2.5 dark:border-white/10">
+        <div className="flex flex-col gap-2 border-t border-paper-200 px-3 py-2.5">
           <div>
-            <p className="mb-0.5 text-xs font-semibold text-stone-500 dark:text-stone-400">Eingabe</p>
-            <pre className="overflow-x-auto rounded-lg bg-white p-2 text-xs text-stone-600 dark:bg-black/20 dark:text-stone-300">
+            <p className="mb-0.5 text-xs font-semibold text-stone-500">Eingabe</p>
+            <pre className="overflow-x-auto rounded-lg bg-white p-2 text-xs text-stone-600">
               {JSON.stringify(input, null, 2)}
             </pre>
           </div>
           <div>
-            <p className="mb-0.5 text-xs font-semibold text-stone-500 dark:text-stone-400">Ergebnis</p>
-            <pre className="overflow-x-auto rounded-lg bg-white p-2 text-xs text-stone-600 dark:bg-black/20 dark:text-stone-300">
+            <p className="mb-0.5 text-xs font-semibold text-stone-500">Ergebnis</p>
+            <pre className="overflow-x-auto rounded-lg bg-white p-2 text-xs text-stone-600">
               {JSON.stringify(ergebnis, null, 2)}
             </pre>
           </div>
@@ -108,21 +108,21 @@ export function ToolCallCard({
           {formelErgebnis && (
             <div className="flex flex-wrap items-center gap-2">
               {formelErgebnis.richtwert && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
                   Richtwert
                 </span>
               )}
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                   formelErgebnis.verifiziert
-                    ? 'bg-sage-100 text-sage-800 dark:bg-sage-900/30 dark:text-sage-300'
-                    : 'bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300'
+                    ? 'bg-sage-100 text-sage-800'
+                    : 'bg-paper-200 text-stone-600'
                 }`}
               >
                 {formelErgebnis.verifiziert ? 'Verifiziert' : 'Unverifiziert'}
               </span>
               {formelErgebnis.quelle?.unsicher && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
                   <Info size={12} />
                   Quelle unsicher
                 </span>
@@ -131,7 +131,7 @@ export function ToolCallCard({
           )}
 
           {formelErgebnis?.pflichthinweis && (
-            <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+            <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-900">
               {formelErgebnis.pflichthinweis}
             </p>
           )}

@@ -3,10 +3,12 @@ import { Download, Trash2, X } from 'lucide-react'
 import { formatNumber } from '../lib/format'
 import { berechneKennwerte, parseMessreihe, vertrauensbereichMittelwert } from '../lib/statistik'
 import { WarningBanner } from '../components/WarningBanner'
+import { useSetHeaderTitle } from '../lib/headerTitleContext'
 
 const VERTRAUENSNIVEAUS = [0.9, 0.95, 0.99] as const
 
 export function Statistik() {
+  useSetHeaderTitle('Statistik')
   const [werte, setWerte] = useState<number[]>([12.1, 12.4, 11.9, 12.3, 12.0, 12.6, 11.8])
   const [eingabe, setEingabe] = useState('')
   const [niveau, setNiveau] = useState<number>(0.95)
@@ -71,10 +73,7 @@ export function Statistik() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Statistik</h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">Kennwerte und Vertrauensbereich einer Messreihe</p>
-      </div>
+      <p className="text-[14px] text-stone-500">Kennwerte und Vertrauensbereich einer Messreihe</p>
 
       <div className="flex flex-col gap-2">
         <textarea
@@ -82,7 +81,7 @@ export function Statistik() {
           onChange={(e) => setEingabe(e.target.value)}
           placeholder="Werte einfügen (aus Excel: Tab, Semikolon, Komma oder Zeilenumbruch getrennt, deutsches Komma)"
           rows={3}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500 dark:border-white/15 dark:bg-white/5"
+          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
         />
         <button
           onClick={einfuegen}
@@ -95,12 +94,12 @@ export function Statistik() {
       {werte.length > 0 && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+            <span className="text-sm font-medium text-stone-700">
               Messreihe ({werte.length} Werte)
             </span>
             <button
               onClick={alleLoeschen}
-              className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline dark:text-red-400"
+              className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline"
             >
               <Trash2 size={14} />
               Alle löschen
@@ -110,7 +109,7 @@ export function Statistik() {
             {werte.map((w, i) => (
               <span
                 key={i}
-                className="flex items-center gap-1 rounded-full bg-paper-100 px-2.5 py-1 text-xs tabular-nums text-stone-700 dark:bg-white/10 dark:text-stone-300"
+                className="flex items-center gap-1 rounded-full bg-paper-100 px-2.5 py-1 text-xs tabular-nums text-stone-700"
               >
                 {formatNumber(w, 5)}
                 <button onClick={() => wertLoeschen(i)} aria-label="Wert löschen">
@@ -127,8 +126,8 @@ export function Statistik() {
       )}
 
       {kennwerte && (
-        <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 dark:border-sage-800/60 dark:bg-sage-900/20">
-          <h2 className="mb-2 text-sm font-semibold text-sage-700 dark:text-sage-300">Kennwerte</h2>
+        <div className="rounded-xl border border-sage-200 bg-sage-50 p-4">
+          <h2 className="mb-2 text-sm font-semibold text-sage-700">Kennwerte</h2>
           <dl className="flex flex-col gap-1 text-sm">
             {(
               [
@@ -143,8 +142,8 @@ export function Statistik() {
               ] as [string, number][]
             ).map(([label, wert]) => (
               <div key={label} className="flex justify-between gap-3">
-                <dt className="text-stone-600 dark:text-stone-400">{label}</dt>
-                <dd className="shrink-0 font-medium tabular-nums text-stone-900 dark:text-stone-100">{formatNumber(wert, 5)}</dd>
+                <dt className="text-stone-600">{label}</dt>
+                <dd className="shrink-0 font-medium tabular-nums text-stone-900">{formatNumber(wert, 5)}</dd>
               </div>
             ))}
           </dl>
@@ -152,16 +151,16 @@ export function Statistik() {
       )}
 
       {kennwerte && kennwerte.n >= 2 && (
-        <div className="flex flex-col gap-3 rounded-xl border border-paper-300 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+        <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">Vertrauensbereich des Mittelwerts</h2>
+            <h2 className="text-sm font-semibold text-stone-700">Vertrauensbereich des Mittelwerts</h2>
             <div className="flex gap-1">
               {VERTRAUENSNIVEAUS.map((n) => (
                 <button
                   key={n}
                   onClick={() => setNiveau(n)}
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                    niveau === n ? 'bg-accent-600 text-white' : 'bg-paper-100 text-stone-600 dark:bg-white/10 dark:text-stone-300'
+                    niveau === n ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
                   }`}
                 >
                   {n * 100}%
@@ -170,7 +169,7 @@ export function Statistik() {
             </div>
           </div>
           {vertrauensbereich && (
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-stone-700">
               <span className="font-semibold">
                 {formatNumber(vertrauensbereich.mittelwert, 5)} ± {formatNumber(vertrauensbereich.halbbreite, 5)}
               </span>{' '}
@@ -183,16 +182,16 @@ export function Statistik() {
       {werte.length > 0 && (
         <button
           onClick={exportCsv}
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-paper-300 bg-white px-4 py-3 text-sm font-medium text-stone-700 hover:border-accent-300 dark:border-white/10 dark:bg-white/5 dark:text-stone-200"
+          className="flex items-center justify-center gap-1.5 rounded-xl bg-paper-200 px-4 py-3 text-sm font-medium text-stone-700"
         >
           <Download size={16} />
           Als CSV exportieren
         </button>
       )}
 
-      <div className="rounded-xl border border-paper-300 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-1 font-semibold text-stone-800 dark:text-stone-200">Annahmen</h2>
-        <ul className="list-inside list-disc text-stone-600 dark:text-stone-400">
+      <div className="rounded-2xl bg-white p-4 text-sm">
+        <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
+        <ul className="list-inside list-disc text-stone-600">
           <li>Stichproben-Standardabweichung mit n-1 (Bessel-Korrektur)</li>
           <li>Vertrauensbereich des Mittelwerts über die t-Verteilung (nicht die Normalverteilung) - korrekt auch bei kleinen Stichproben</li>
           <li>Messwerte als unabhängig und annähernd normalverteilt angenommen</li>
