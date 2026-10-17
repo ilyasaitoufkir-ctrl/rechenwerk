@@ -238,7 +238,7 @@ export function Assistent() {
       </div>
 
       {zeigeVerlaufListe && (
-        <div className="flex max-h-48 flex-col gap-1.5 overflow-y-auto rounded-2xl bg-white p-2">
+        <div className="flex max-h-48 flex-col gap-1.5 overflow-y-auto rounded-2xl bg-paper-200 p-2">
           {konversationen.length === 0 && <p className="p-2 text-sm text-stone-500">Noch keine gespeicherten Unterhaltungen.</p>}
           {konversationen.map((k) => (
             <div key={k.id} className="flex items-center gap-1">
@@ -288,7 +288,7 @@ export function Assistent() {
                 key={i}
                 className={
                   m.role === 'user'
-                    ? 'ml-auto max-w-[85%] rounded-2xl bg-accent-600 px-3.5 py-2.5 text-[16px] text-white'
+                    ? 'ml-auto max-w-[85%] rounded-2xl bg-accent-600 px-3.5 py-2.5 text-[16px] text-ink'
                     : 'max-w-[85%] whitespace-pre-wrap text-[16px] text-stone-900'
                 }
               >
@@ -305,7 +305,7 @@ export function Assistent() {
                       key={j}
                       className={
                         m.role === 'user'
-                          ? 'ml-auto max-w-[85%] rounded-2xl bg-accent-600 px-3.5 py-2.5 text-[16px] text-white'
+                          ? 'ml-auto max-w-[85%] rounded-2xl bg-accent-600 px-3.5 py-2.5 text-[16px] text-ink'
                           : 'max-w-[85%] whitespace-pre-wrap text-[16px] text-stone-900'
                       }
                     >
@@ -380,7 +380,7 @@ export function Assistent() {
       </div>
 
       {bildAnhang && (
-        <div className="flex items-center gap-2 rounded-2xl bg-white p-2">
+        <div className="flex items-center gap-2 rounded-2xl bg-paper-200 p-2">
           <img src={`data:${bildAnhang.mediaType};base64,${bildAnhang.data}`} alt="Vorschau" className="h-10 w-10 rounded-lg object-cover" />
           <span className="flex-1 text-xs text-stone-500">Bild angehängt</span>
           <button onClick={() => setBildAnhang(null)} aria-label="Bild entfernen" className="rounded-lg p-1.5 text-stone-400 hover:bg-paper-100">
@@ -405,13 +405,13 @@ export function Assistent() {
           }}
           placeholder="Frage an den Assistenten..."
           rows={1}
-          className="min-w-0 flex-1 resize-none rounded-xl border border-paper-300 bg-white px-3 py-2.5 text-[16px]"
+          className="min-w-0 flex-1 resize-none rounded-xl border border-paper-300 bg-paper-200 px-3 py-2.5 text-[16px]"
         />
         <button
           onClick={() => void senden()}
           disabled={laeuft || (!eingabe.trim() && !bildAnhang)}
           aria-label="Senden"
-          className="shrink-0 rounded-lg bg-accent-600 p-2.5 text-white disabled:opacity-40"
+          className="shrink-0 rounded-lg bg-accent-600 p-2.5 text-ink disabled:opacity-40"
         >
           <Send size={20} />
         </button>

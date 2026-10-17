@@ -9,6 +9,7 @@ import { useFavoriten } from '../hooks/useFavoriten'
 import { useEinstellungen } from '../hooks/useEinstellungen'
 import { useTransfer } from '../hooks/useTransfer'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
+import { KATEGORIE_BILD } from '../lib/kategorieBilder'
 import { FeldEingabe } from './FeldEingabe'
 import { SchichtenEingabe } from './SchichtenEingabe'
 import { KomponentenEingabe } from './KomponentenEingabe'
@@ -17,6 +18,7 @@ import { WarningBanner } from './WarningBanner'
 import { VerificationBadge } from './VerificationBadge'
 import { KatexBlock } from './KatexBlock'
 import { DruckgeraeteBanner } from './DruckgeraeteBanner'
+import { KategorieBild } from './KategorieBild'
 
 interface GespeicherterZustand {
   ziel?: string
@@ -153,22 +155,42 @@ export function Calculator({ formel }: { formel: Formula }) {
   }, [bekanntSIKey, ziel])
 
   const istFav = favoriten.includes(formel.id)
+  const bildSlug = KATEGORIE_BILD[formel.kategorie]
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-[22px] font-bold text-stone-900">{formel.name}</p>
-          <p className="text-[13px] text-stone-500">{formel.kategorie}</p>
+      {bildSlug && (
+        <div className="relative -mx-4 -mt-2 h-[140px] w-auto">
+          <KategorieBild slug={bildSlug} alt={formel.kategorie} className="absolute inset-0 h-full w-full" />
+          <button
+            onClick={() => toggeln(formel.id)}
+            aria-label="Favorit umschalten"
+            className="absolute right-3 top-3 rounded-lg bg-paper-50/60 p-1.5"
+          >
+            <Star size={20} className={istFav ? 'fill-amber-500 text-amber-500' : 'text-stone-900'} />
+          </button>
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <span className="eyebrow">{formel.kategorie}</span>
+            <p className="text-[22px] font-bold text-stone-900">{formel.name}</p>
+          </div>
         </div>
-        <button
-          onClick={() => toggeln(formel.id)}
-          aria-label="Favorit umschalten"
-          className="rounded-lg p-2 text-stone-400"
-        >
-          <Star size={22} className={istFav ? 'fill-amber-500 text-amber-500' : ''} />
-        </button>
-      </div>
+      )}
+
+      {!bildSlug && (
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <p className="text-[22px] font-bold text-stone-900">{formel.name}</p>
+            <p className="text-[13px] text-stone-500">{formel.kategorie}</p>
+          </div>
+          <button
+            onClick={() => toggeln(formel.id)}
+            aria-label="Favorit umschalten"
+            className="rounded-lg p-2 text-stone-400"
+          >
+            <Star size={22} className={istFav ? 'fill-amber-500 text-amber-500' : ''} />
+          </button>
+        </div>
+      )}
 
       {formel.kategorie === 'Druckgeräte' && <DruckgeraeteBanner />}
 
@@ -191,7 +213,7 @@ export function Calculator({ formel }: { formel: Formula }) {
                   key={zId}
                   onClick={() => setZiel(zId)}
                   className={`rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors ${
-                    ziel === zId ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
+                    ziel === zId ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
                   }`}
                 >
                   {v.name}
@@ -279,14 +301,14 @@ export function Calculator({ formel }: { formel: Formula }) {
 
       <button
         onClick={() => setRechenwegOffen((o) => !o)}
-        className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-left text-[15px] font-medium text-stone-700"
+        className="flex items-center justify-between rounded-2xl bg-paper-200 px-4 py-3 text-left text-[15px] font-medium text-stone-700"
       >
         Formel, Rechenweg, Gültigkeit &amp; Quelle
         <ChevronDown size={18} className={`transition-transform ${rechenwegOffen ? 'rotate-180' : ''}`} />
       </button>
 
       {rechenwegOffen && (
-        <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 text-[14px]">
+        <div className="flex flex-col gap-4 rounded-2xl bg-paper-200 p-4 text-[14px]">
           <section>
             <h2 className="mb-1 font-semibold text-stone-800">Eingesetzte Werte</h2>
             {ergebnis ? (

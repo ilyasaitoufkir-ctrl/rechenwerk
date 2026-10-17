@@ -15,6 +15,7 @@ export type Route =
   | { name: 'fehlerfortpflanzung' }
   | { name: 'mccabe-thiele' }
   | { name: 'assistent' }
+  | { name: 'rechner-kategorie'; kategorie: string }
   | { name: 'formel'; id: string }
 
 /** Tab-Wurzeln: großer Titel, keine Zurück-Navigation. */
@@ -40,6 +41,7 @@ function parseHash(hash: string): Route {
   const path = hash.replace(/^#\/?/, '')
   const [segment, id] = path.split('/')
   if (segment === 'formel' && id) return { name: 'formel', id: decodeURIComponent(id) }
+  if (segment === 'rechner-kategorie' && id) return { name: 'rechner-kategorie', kategorie: decodeURIComponent(id) }
   const einfach = EINFACHE_ROUTEN.find((r) => r === segment)
   if (einfach) return { name: einfach }
   return { name: 'home' }
@@ -51,7 +53,9 @@ export function navigiere(route: Route): void {
       ? '#/'
       : route.name === 'formel'
         ? `#/formel/${encodeURIComponent(route.id)}`
-        : `#/${route.name}`
+        : route.name === 'rechner-kategorie'
+          ? `#/rechner-kategorie/${encodeURIComponent(route.kategorie)}`
+          : `#/${route.name}`
   window.location.hash = hash
 }
 

@@ -52,6 +52,11 @@ export function Layout({ children }: Props) {
               <span className="text-[15px]">Zurück</span>
             </button>
           )}
+          {istTab && !istVollflaeche && (
+            <span className="monogram absolute text-[20px] transition-opacity" style={{ opacity: kompakt ? 0 : 1 }}>
+              RW
+            </span>
+          )}
           <p
             className="truncate px-16 text-[15px] font-semibold text-stone-900 transition-opacity"
             style={{ opacity: istTab && !istVollflaeche ? (kompakt ? 1 : 0) : 1 }}
@@ -70,7 +75,7 @@ export function Layout({ children }: Props) {
           className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
         >
           <div key={route.name + ('id' in route ? route.id : '')} className={istTab ? '' : 'page-enter'}>
-            {istTab && (
+            {istTab && route.name !== 'home' && (
               <h1 className="px-4 pb-1 pt-1 text-[32px] font-bold tracking-tight text-stone-900">{titel}</h1>
             )}
             <div className="px-4 pb-10 pt-2">{children}</div>

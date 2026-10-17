@@ -47,7 +47,7 @@ export function McCabeThiele() {
           inputMode="decimal"
           value={eingaben[key]}
           onChange={(e) => setEingaben((s) => ({ ...s, [key]: e.target.value }))}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
+          className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-base outline-none focus:border-accent-500"
         />
       </label>
     )
@@ -118,7 +118,7 @@ export function McCabeThiele() {
         </>
       )}
 
-      <div className="rounded-2xl bg-white p-4 text-sm">
+      <div className="rounded-2xl bg-paper-200 p-4 text-sm">
         <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
         <ul className="list-inside list-disc text-stone-600">
           <li>Binäres Gemisch, konstante relative Flüchtigkeit α</li>
@@ -149,10 +149,10 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
     <LineChart
       ariaLabel="McCabe-Thiele-Diagramm"
       reihen={[
-        { label: 'Gleichgewicht', farbe: '#b7791f', punkte: gleichgewicht },
+        { label: 'Gleichgewicht', farbe: '#d9a94e', punkte: gleichgewicht },
         {
           label: 'Diagonale',
-          farbe: '#c7dbe0',
+          farbe: '#b8b3a8',
           punkte: [
             { x: 0, y: 0 },
             { x: 1, y: 1 },
@@ -160,7 +160,7 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
         },
         {
           label: 'Verstärkung',
-          farbe: '#0f4c5c',
+          farbe: '#c8a86b',
           punkte: [
             { x: schnitt.x, y: schnitt.y },
             { x: xD, y: xD },
@@ -168,7 +168,7 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
         },
         {
           label: 'Abtrieb',
-          farbe: '#2f7d5b',
+          farbe: '#6fae8c',
           punkte: [
             { x: xB, y: xB },
             { x: schnitt.x, y: schnitt.y },
@@ -176,13 +176,13 @@ function Diagramm({ ergebnis }: { ergebnis: Loesung }) {
         },
         {
           label: 'q-Linie',
-          farbe: '#53565b',
+          farbe: '#a19d95',
           punkte: [
             { x: xF, y: xF },
             { x: schnitt.x, y: schnitt.y },
           ],
         },
-        { label: 'Stufen', farbe: '#b42318', punkte: treppe },
+        { label: 'Stufen', farbe: '#d9735e', punkte: treppe },
       ]}
     />
   )

@@ -94,13 +94,13 @@ export function ToolCallCard({
         <div className="flex flex-col gap-2 border-t border-paper-200 px-3 py-2.5">
           <div>
             <p className="mb-0.5 text-xs font-semibold text-stone-500">Eingabe</p>
-            <pre className="overflow-x-auto rounded-lg bg-white p-2 text-xs text-stone-600">
+            <pre className="overflow-x-auto rounded-lg bg-paper-200 p-2 text-xs text-stone-600">
               {JSON.stringify(input, null, 2)}
             </pre>
           </div>
           <div>
             <p className="mb-0.5 text-xs font-semibold text-stone-500">Ergebnis</p>
-            <pre className="overflow-x-auto rounded-lg bg-white p-2 text-xs text-stone-600">
+            <pre className="overflow-x-auto rounded-lg bg-paper-200 p-2 text-xs text-stone-600">
               {JSON.stringify(ergebnis, null, 2)}
             </pre>
           </div>
@@ -146,7 +146,7 @@ export function ToolCallCard({
                 })
                 navigiere({ name: 'formel', id: rechnerLink.formelId })
               }}
-              className="flex items-center justify-center gap-1.5 rounded-lg bg-accent-600 px-3 py-2 text-xs font-medium text-white hover:bg-accent-700"
+              className="flex items-center justify-center gap-1.5 rounded-lg bg-accent-600 px-3 py-2 text-xs font-medium text-ink hover:bg-accent-700"
             >
               Im Rechner öffnen
               <ArrowRight size={14} />

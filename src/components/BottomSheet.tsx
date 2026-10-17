@@ -19,7 +19,7 @@ export function BottomSheet({ offen, onClose, titel, children }: Props) {
         className="sheet-backdrop absolute inset-0 bg-black/30"
       />
       <div
-        className="sheet-panel relative max-h-[75vh] overflow-y-auto rounded-t-[20px] bg-white pb-[calc(16px+var(--safe-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]"
+        className="sheet-panel relative max-h-[75vh] overflow-y-auto rounded-t-[20px] bg-paper-200 pb-[calc(16px+var(--safe-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]"
         role="dialog"
         aria-modal="true"
       >

@@ -81,11 +81,11 @@ export function Statistik() {
           onChange={(e) => setEingabe(e.target.value)}
           placeholder="Werte einfügen (aus Excel: Tab, Semikolon, Komma oder Zeilenumbruch getrennt, deutsches Komma)"
           rows={3}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
+          className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-base outline-none focus:border-accent-500"
         />
         <button
           onClick={einfuegen}
-          className="self-start rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700"
+          className="self-start rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-ink hover:bg-accent-700"
         >
           Werte hinzufügen
         </button>
@@ -151,7 +151,7 @@ export function Statistik() {
       )}
 
       {kennwerte && kennwerte.n >= 2 && (
-        <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+        <div className="flex flex-col gap-3 rounded-2xl bg-paper-200 p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-stone-700">Vertrauensbereich des Mittelwerts</h2>
             <div className="flex gap-1">
@@ -160,7 +160,7 @@ export function Statistik() {
                   key={n}
                   onClick={() => setNiveau(n)}
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                    niveau === n ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
+                    niveau === n ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
                   }`}
                 >
                   {n * 100}%
@@ -189,7 +189,7 @@ export function Statistik() {
         </button>
       )}
 
-      <div className="rounded-2xl bg-white p-4 text-sm">
+      <div className="rounded-2xl bg-paper-200 p-4 text-sm">
         <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
         <ul className="list-inside list-disc text-stone-600">
           <li>Stichproben-Standardabweichung mit n-1 (Bessel-Korrektur)</li>

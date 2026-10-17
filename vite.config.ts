@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'Rechenwerk',
         description:
           'Verfahrenstechnik-Rechner mit Formelbibliothek, Quellenangaben und Rechenweg.',
-        theme_color: '#f5f5f3',
-        background_color: '#f5f5f3',
+        theme_color: '#18181a',
+        background_color: '#18181a',
         display: 'standalone',
         start_url: '/',
         icons: [
@@ -33,7 +33,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
       },
     }),
   ],

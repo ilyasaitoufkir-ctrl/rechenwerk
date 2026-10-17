@@ -13,7 +13,7 @@ export function CalculatorPage({ id }: { id: string }) {
         <p className="text-[15px] text-stone-600">Formel „{id}“ wurde nicht gefunden.</p>
         <button
           onClick={() => navigiere({ name: 'rechner' })}
-          className="rounded-xl bg-accent-600 px-4 py-2 text-[14px] font-medium text-white"
+          className="rounded-xl bg-accent-600 px-4 py-2 text-[14px] font-medium text-ink"
         >
           Zu den Rechnern
         </button>

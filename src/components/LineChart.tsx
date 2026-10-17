@@ -58,7 +58,7 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
   const yTicks = Array.from({ length: ticks + 1 }, (_, i) => yMin + (ySpan * i) / ticks)
 
   return (
-    <div className="rounded-2xl bg-white p-2">
+    <div className="rounded-2xl bg-paper-200 p-2">
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" role="img" aria-label={ariaLabel}>
         {yTicks.map((v, i) => (
           <g key={`y${i}`}>
@@ -102,7 +102,7 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
 
         {markierung && (
           <g>
-            <circle cx={x(markierung.x)} cy={y(markierung.y)} r={5.5} fill={markierung.farbe ?? '#b7791f'} stroke="white" strokeWidth={1.5} />
+            <circle cx={x(markierung.x)} cy={y(markierung.y)} r={5.5} fill={markierung.farbe ?? '#d9a94e'} stroke="white" strokeWidth={1.5} />
           </g>
         )}
       </svg>
@@ -117,7 +117,7 @@ export function LineChart({ reihen, ariaLabel, markierung, hoehe = 300 }: Props)
           <span className="flex items-center gap-1.5">
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: markierung.farbe ?? '#b7791f' }}
+              style={{ backgroundColor: markierung.farbe ?? '#d9a94e' }}
             />
             {markierung.label}
           </span>

@@ -30,7 +30,7 @@ export function History() {
           const wert = zielVar ? fromSI(eintrag.ergebnis[eintrag.ziel], zielVar.dimension, zielVar.defaultUnit) : undefined
 
           return (
-            <div key={eintrag.id} className="flex items-center gap-2 rounded-2xl bg-white px-3 py-3">
+            <div key={eintrag.id} className="flex items-center gap-2 rounded-2xl bg-paper-200 px-3 py-3">
               <button
                 onClick={() => formel && navigiere({ name: 'formel', id: formel.id })}
                 className="min-w-0 flex-1 text-left"

@@ -100,7 +100,7 @@ export function Bibliothek() {
     <div className="flex flex-col gap-4">
       <SearchBar value={suche} onChange={setSuche} placeholder="Formel oder Tabelle suchen…" />
 
-      <div className="flex flex-col gap-1.5 rounded-2xl bg-white p-3">
+      <div className="flex flex-col gap-1.5 rounded-2xl bg-paper-200 p-3">
         <div className="flex items-center justify-between text-[13px]">
           <span className="text-stone-500">Fortschritt</span>
           <span className="font-medium tabular-nums text-stone-700">
@@ -130,7 +130,7 @@ export function Bibliothek() {
         <button
           onClick={() => setKategorie(null)}
           className={`shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium ${
-            kategorie === null ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
+            kategorie === null ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
           }`}
         >
           Alle Kategorien
@@ -140,7 +140,7 @@ export function Bibliothek() {
             key={k}
             onClick={() => setKategorie(k)}
             className={`shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium ${
-              kategorie === k ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
+              kategorie === k ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
             }`}
           >
             {k}
@@ -160,7 +160,7 @@ export function Bibliothek() {
 
       <div className="flex flex-col gap-2">
         {gefiltert.map((e) => (
-          <div key={e.id} className="flex flex-col gap-2 rounded-2xl bg-white p-3.5">
+          <div key={e.id} className="flex flex-col gap-2 rounded-2xl bg-paper-200 p-3.5">
             <div className="flex items-start justify-between gap-2">
               <button
                 onClick={() => e.typ === 'Formel' && navigiere({ name: 'formel', id: e.id })}

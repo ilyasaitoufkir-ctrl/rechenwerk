@@ -97,11 +97,11 @@ export function Regression() {
           onChange={(e) => setPaste(e.target.value)}
           placeholder="x- und y-Spalte gemeinsam aus Excel einfügen (je Zeile x TAB y)"
           rows={3}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
+          className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-base outline-none focus:border-accent-500"
         />
         <button
           onClick={einfuegen}
-          className="self-start rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700"
+          className="self-start rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-ink hover:bg-accent-700"
         >
           Punkte hinzufügen
         </button>
@@ -117,7 +117,7 @@ export function Regression() {
                 inputMode="decimal"
                 value={p.x}
                 onChange={(e) => punktAendern(i, { x: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
@@ -127,7 +127,7 @@ export function Regression() {
                 inputMode="decimal"
                 value={p.y}
                 onChange={(e) => punktAendern(i, { y: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             <button
@@ -160,13 +160,13 @@ export function Regression() {
             reihen={[
               {
                 label: 'Messpunkte',
-                farbe: '#b7791f',
+                farbe: '#d9a94e',
                 typ: 'punkte',
                 punkte: regression.punkte,
               },
               {
                 label: 'Regressionsgerade',
-                farbe: '#0f4c5c',
+                farbe: '#c8a86b',
                 punkte: (() => {
                   const xs = regression.punkte.map((p) => p.x)
                   const xMin = Math.min(...xs)
@@ -187,7 +187,7 @@ export function Regression() {
             <p className="text-stone-700">R² = {formatNumber(regression.r2, 5)}</p>
           </div>
 
-          <div className="flex flex-col gap-2 rounded-2xl bg-white p-4">
+          <div className="flex flex-col gap-2 rounded-2xl bg-paper-200 p-4">
             <h2 className="text-sm font-semibold text-stone-700">Kalibrierkurve rückwärts nutzen</h2>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs text-stone-500">Gemessener y-Wert</span>
@@ -196,7 +196,7 @@ export function Regression() {
                 inputMode="decimal"
                 value={yMesswert}
                 onChange={(e) => setYMesswert(e.target.value)}
-                className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             {xAusY !== null && (

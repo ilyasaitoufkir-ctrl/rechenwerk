@@ -11,7 +11,7 @@ interface Props {
 
 export function FormulaCard({ formel, istFavorit, istVerifiziert, onFavoritToggeln }: Props) {
   return (
-    <div className="flex items-center gap-2 rounded-2xl bg-white px-3.5 py-3">
+    <div className="flex items-center gap-2 rounded-2xl bg-paper-200 px-3.5 py-3">
       <button
         onClick={() => navigiere({ name: 'formel', id: formel.id })}
         className="flex min-w-0 flex-1 items-center gap-3 text-left"

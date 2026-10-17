@@ -12,7 +12,7 @@ export function SegmentedControl<T extends string>({ value, onChange, optionen }
           key={o.value}
           onClick={() => onChange(o.value)}
           className={`flex-1 rounded-[10px] px-2 py-1.5 text-[13px] font-medium transition-colors ${
-            value === o.value ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 active:text-stone-900'
+            value === o.value ? 'bg-paper-200 text-stone-900 shadow-sm' : 'text-stone-600 active:text-stone-900'
           }`}
         >
           {o.label}

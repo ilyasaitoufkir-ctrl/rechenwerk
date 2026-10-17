@@ -6,74 +6,92 @@
    prefers-color-scheme. Vorhandene dark:-Klassen bleiben dadurch inert. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Monogramm "RW" - einzige Stelle, an der eine zweite Schrift verwendet wird,
+   selbst gehostet (woff2) für Offline-Betrieb. Nur lateinisches Subset. */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/cormorant-garamond-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF;
+}
+
 @theme {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-monogram: 'Cormorant Garamond', ui-serif, serif;
 
-  /* Petrol - einzige Akzentfarbe */
-  --color-accent-50: #eef4f5;
-  --color-accent-100: #e7f0f2;
-  --color-accent-200: #c7dbe0;
-  --color-accent-300: #9fc0c8;
-  --color-accent-400: #5c8d97;
-  --color-accent-500: #2d6775;
-  --color-accent-600: #0f4c5c;
-  --color-accent-700: #0d4049;
-  --color-accent-800: #0a323a;
-  --color-accent-900: #08262c;
+  /* Champagnergold - einzige Akzentfarbe */
+  --color-accent-50: #241f17;
+  --color-accent-100: #2e2719;
+  --color-accent-200: #473c27;
+  --color-accent-300: #8c7650;
+  --color-accent-400: #ad935f;
+  --color-accent-500: #bc9f68;
+  --color-accent-600: #c8a86b;
+  --color-accent-700: #d4b87e;
+  --color-accent-800: #e0c896;
+  --color-accent-900: #ecdab4;
 
   /* Gedämpftes Grün - Erfolg/Verifiziert */
-  --color-sage-50: #f1f7f4;
-  --color-sage-100: #e3f0e9;
-  --color-sage-200: #c2dfd0;
-  --color-sage-300: #94c4ac;
-  --color-sage-400: #5fa283;
-  --color-sage-500: #3f8a67;
-  --color-sage-600: #2f7d5b;
-  --color-sage-700: #27634a;
-  --color-sage-800: #214f3d;
-  --color-sage-900: #1b4132;
+  --color-sage-50: #14201a;
+  --color-sage-100: #1e2b24;
+  --color-sage-200: #2a3d33;
+  --color-sage-300: #3d5647;
+  --color-sage-400: #559077;
+  --color-sage-500: #6fae8c;
+  --color-sage-600: #6fae8c;
+  --color-sage-700: #85be9f;
+  --color-sage-800: #9fd4b8;
+  --color-sage-900: #c4e8d4;
 
-  /* Warme, ruhige Flächen */
-  --color-paper-50: #f5f5f3;
-  --color-paper-100: #efefec;
-  --color-paper-200: #e9e9e5;
-  --color-paper-300: #e6e6e2;
+  /* Dunkle Flächenhierarchie: Hintergrund < erhöhte Fläche < Karte < Haarlinie */
+  --color-paper-50: #18181a;
+  --color-paper-100: #222225;
+  --color-paper-200: #2a2a2e;
+  --color-paper-300: #3a3a3f;
+
+  /* Reiner Text-auf-Gold-Ton für Primärbuttons (dasselbe Anthrazit wie der Hintergrund) */
+  --color-ink: #18181a;
 
   /* Tailwinds eingebaute Farbskalen (stone, amber, red) auf das neue System
      umlegen, damit alle bestehenden Klassen automatisch das neue Design
-     bekommen, ohne jede Datei einzeln anzufassen. */
-  --color-stone-50: #fafafa;
-  --color-stone-100: #f5f5f3;
-  --color-stone-200: #e9e9e5;
-  --color-stone-300: #d4d4d0;
-  --color-stone-400: #9a9da2;
-  --color-stone-500: #6b6e73;
-  --color-stone-600: #53565b;
-  --color-stone-700: #3d3f43;
-  --color-stone-800: #26282b;
-  --color-stone-900: #111214;
+     bekommen, ohne jede Datei einzeln anzufassen. Zahlen steigen mit der
+     Helligkeit (900 = primärer Text, hell; 400 = tertiär, dunkler) -
+     umgekehrt zum vorigen hellen Schema. */
+  --color-stone-50: #201f1a;
+  --color-stone-100: #28261f;
+  --color-stone-200: #38362f;
+  --color-stone-300: #504d48;
+  --color-stone-400: #99968d;
+  --color-stone-500: #a19d95;
+  --color-stone-600: #b8b3a8;
+  --color-stone-700: #cfcbc1;
+  --color-stone-800: #e4e0d8;
+  --color-stone-900: #f2efe9;
 
-  --color-amber-50: #fbf3e7;
-  --color-amber-100: #f6e6cc;
-  --color-amber-300: #e0b876;
-  --color-amber-600: #b7791f;
-  --color-amber-800: #8a5c18;
-  --color-amber-900: #6e4a14;
+  --color-amber-50: #241d12;
+  --color-amber-100: #2e2415;
+  --color-amber-300: #d9a94e;
+  --color-amber-600: #d9a94e;
+  --color-amber-800: #e8c688;
+  --color-amber-900: #f2dcb0;
 
-  --color-red-50: #fbeeec;
-  --color-red-100: #f6dcd8;
-  --color-red-300: #e2a39a;
-  --color-red-600: #b42318;
-  --color-red-800: #8a1a12;
-  --color-red-900: #6e150f;
+  --color-red-50: #2a1512;
+  --color-red-100: #331a16;
+  --color-red-300: #d9735e;
+  --color-red-600: #d9735e;
+  --color-red-800: #e8a292;
+  --color-red-900: #f2c4b8;
 
-  /* Karten/Gruppen etwas runder als Buttons/Eingaben (12px, Tailwind-Default) */
-  --radius-2xl: 14px;
+  /* Karten/Kacheln 12px, Buttons/Eingaben 10px, Sheets oben 20px */
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
   --radius-sheet: 20px;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -97,7 +115,7 @@ body {
   inset: 0;
   font-family: var(--font-sans);
   background-color: var(--color-paper-50);
-  color: #111214;
+  color: #f2efe9;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -129,6 +147,23 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* Eyebrow: kleine Überschrift in Großbuchstaben mit Laufweite */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-stone-400);
+}
+
+/* Monogramm-Logo oben in der Kopfzeile */
+.monogram {
+  font-family: var(--font-monogram);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-accent-600);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -149,6 +184,12 @@ textarea {
 
 .katex-scroll .katex-display {
   margin: 0;
+}
+
+/* KaTeX rendert normalerweise schwarz auf weiß - im dunklen Design drehen wir
+   die Textfarbe auf warmes Weiß; Formeln bleiben sonst unlesbar. */
+.katex-scroll .katex {
+  color: var(--color-stone-900);
 }
 
 /* Seitenwechsel: sanftes Einblenden von rechts für Unterseiten */
@@ -205,4 +246,15 @@ textarea {
   .sheet-backdrop {
     animation: none;
   }
+}
+
+/* Kategoriebilder: dunkles Overlay (transparent oben -> Hintergrundfarbe 85%
+   unten) plus leichte Entsättigung/Abdunkelung, damit weiße Schrift auf jedem
+   Foto sicher lesbar bleibt und der Look zum Anthrazit passt. */
+.kategoriebild-img {
+  filter: saturate(0.82) brightness(0.82);
+}
+
+.kategoriebild-overlay {
+  background: linear-gradient(to bottom, rgba(24, 24, 26, 0) 0%, rgba(24, 24, 26, 0.55) 55%, rgba(24, 24, 26, 0.92) 100%);
 }

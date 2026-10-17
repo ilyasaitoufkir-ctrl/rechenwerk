@@ -101,7 +101,7 @@ export function KomponentenEingabe({ feld, onSummenChange }: Props) {
                       value={zeile[s.id]?.wert ?? ''}
                       onChange={(e) => zeileAendern(i, s.id, { wert: e.target.value })}
                       placeholder="0"
-                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-2 py-2 text-[16px] outline-none focus:border-accent-500"
+                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-paper-200 px-2 py-2 text-[16px] outline-none focus:border-accent-500"
                     />
                     {dimensions[s.dimension].units.length > 1 ? (
                       <UnitChip

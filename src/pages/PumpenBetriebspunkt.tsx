@@ -110,7 +110,7 @@ export function PumpenBetriebspunkt() {
         Schnittpunkt von Anlagen- und Pumpenkennlinie, Volumenstrom in m³/h, Förderhöhe in m
       </p>
 
-      <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+      <div className="flex flex-col gap-3 rounded-2xl bg-paper-200 p-4">
         <h2 className="text-sm font-semibold text-stone-700">
           Anlagenkennlinie: H_A = H_stat + Δh_V,ref · (V̇/V̇_ref)²
         </h2>
@@ -122,7 +122,7 @@ export function PumpenBetriebspunkt() {
               inputMode="decimal"
               value={hStat}
               onChange={(e) => setHStat(e.target.value)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+              className="rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
             />
           </label>
           <label className="flex flex-col gap-1 text-xs text-stone-500">
@@ -132,7 +132,7 @@ export function PumpenBetriebspunkt() {
               inputMode="decimal"
               value={vRef}
               onChange={(e) => setVRef(e.target.value)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+              className="rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
             />
           </label>
           <label className="flex flex-col gap-1 text-xs text-stone-500">
@@ -142,7 +142,7 @@ export function PumpenBetriebspunkt() {
               inputMode="decimal"
               value={hVerlustRef}
               onChange={(e) => setHVerlustRef(e.target.value)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+              className="rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
             />
           </label>
         </div>
@@ -151,7 +151,7 @@ export function PumpenBetriebspunkt() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+      <div className="flex flex-col gap-3 rounded-2xl bg-paper-200 p-4">
         <h2 className="text-sm font-semibold text-stone-700">
           Pumpenkennlinie (mindestens 3 Datenblattpunkte)
         </h2>
@@ -164,7 +164,7 @@ export function PumpenBetriebspunkt() {
                 inputMode="decimal"
                 value={p.v}
                 onChange={(e) => punktAendern(i, { v: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
@@ -174,7 +174,7 @@ export function PumpenBetriebspunkt() {
                 inputMode="decimal"
                 value={p.h}
                 onChange={(e) => punktAendern(i, { h: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             <button
@@ -205,9 +205,9 @@ export function PumpenBetriebspunkt() {
           <LineChart
             ariaLabel="Anlagen- und Pumpenkennlinie mit Betriebspunkt"
             reihen={[
-              { label: 'Anlagenkennlinie', farbe: '#0f4c5c', punkte: ergebnis.anlage },
-              { label: 'Pumpenkennlinie', farbe: '#2f7d5b', punkte: ergebnis.pumpe },
-              { label: 'Datenpunkte', farbe: '#b7791f', punkte: ergebnis.datenpunkte, typ: 'punkte' },
+              { label: 'Anlagenkennlinie', farbe: '#c8a86b', punkte: ergebnis.anlage },
+              { label: 'Pumpenkennlinie', farbe: '#6fae8c', punkte: ergebnis.pumpe },
+              { label: 'Datenpunkte', farbe: '#d9a94e', punkte: ergebnis.datenpunkte, typ: 'punkte' },
             ]}
             markierung={
               ergebnis.schnittpunkt
@@ -215,7 +215,7 @@ export function PumpenBetriebspunkt() {
                 : undefined
             }
           />
-          <div className="rounded-2xl bg-white p-4 text-sm">
+          <div className="rounded-2xl bg-paper-200 p-4 text-sm">
             {ergebnis.schnittpunkt ? (
               <p className="text-stone-700">
                 Betriebspunkt: <span className="font-semibold">V̇ = {formatNumber(ergebnis.schnittpunkt.v, 4)} m³/h</span>,{' '}
@@ -240,7 +240,7 @@ export function PumpenBetriebspunkt() {
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white p-4 text-sm">
+      <div className="rounded-2xl bg-paper-200 p-4 text-sm">
         <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
         <ul className="list-inside list-disc text-stone-600">
           <li>Anlagenverlust steigt quadratisch mit dem Volumenstrom (Darcy-Weisbach-Annahme)</li>

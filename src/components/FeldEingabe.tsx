@@ -44,7 +44,7 @@ export function FeldEingabe({
           disabled={deaktiviert}
           onChange={(e) => onWertChange(e.target.value)}
           placeholder="0"
-          className="min-w-0 flex-1 rounded-xl border border-paper-300 bg-white px-4 py-3 text-[16px] text-stone-900 outline-none transition-colors focus:border-accent-500 disabled:opacity-50"
+          className="min-w-0 flex-1 rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-[16px] text-stone-900 outline-none transition-colors focus:border-accent-500 disabled:opacity-50"
         />
         {dim.units.length > 1 ? (
           <UnitChip label={dim.units.find((u) => u.id === einheit)?.label ?? einheit} onClick={() => setSheetOffen(true)} />

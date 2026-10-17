@@ -71,7 +71,7 @@ export function SchichtenEingabe({ feld, name, onSummeChange }: Props) {
                 value={z.dickeMm}
                 onChange={(e) => zeileAendern(i, { dickeMm: e.target.value })}
                 placeholder="0"
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-[16px] outline-none focus:border-accent-500"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-[16px] outline-none focus:border-accent-500"
               />
             </label>
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-[12px] text-stone-500">
@@ -82,7 +82,7 @@ export function SchichtenEingabe({ feld, name, onSummeChange }: Props) {
                 value={z.leitfaehigkeit}
                 onChange={(e) => zeileAendern(i, { leitfaehigkeit: e.target.value })}
                 placeholder="0"
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-[16px] outline-none focus:border-accent-500"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-[16px] outline-none focus:border-accent-500"
               />
             </label>
             <button

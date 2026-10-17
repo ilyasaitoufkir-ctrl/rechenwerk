@@ -67,7 +67,7 @@ export function RezepturSkalieren() {
             key={m}
             onClick={() => setModus(m)}
             className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${
-              modus === m ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
+              modus === m ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
             }`}
           >
             {m === 'prozent' ? 'Anteile in %' : 'Anteile als Masse'}
@@ -82,7 +82,7 @@ export function RezepturSkalieren() {
           inputMode="decimal"
           value={zielmenge}
           onChange={(e) => setZielmenge(e.target.value)}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-base outline-none focus:border-accent-500"
+          className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-base outline-none focus:border-accent-500"
         />
       </label>
 
@@ -95,7 +95,7 @@ export function RezepturSkalieren() {
                 type="text"
                 value={z.name}
                 onChange={(e) => zutatAendern(i, { name: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
@@ -105,7 +105,7 @@ export function RezepturSkalieren() {
                 inputMode="decimal"
                 value={z.anteil}
                 onChange={(e) => zutatAendern(i, { anteil: e.target.value })}
-                className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
               />
             </label>
             <button

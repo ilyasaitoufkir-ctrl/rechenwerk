@@ -116,7 +116,7 @@ export function Fehlerfortpflanzung() {
             <button
               key={f.id}
               onClick={() => formelWaehlen(f)}
-              className="rounded-lg border border-paper-300 bg-white px-3 py-2 text-left text-sm hover:border-accent-300"
+              className="rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-left text-sm hover:border-accent-300"
             >
               <span className="font-medium text-stone-900">{f.name}</span>
               <span className="ml-2 text-xs text-stone-500">{f.kategorie}</span>
@@ -127,7 +127,7 @@ export function Fehlerfortpflanzung() {
 
       {formel && (
         <>
-          <div className="rounded-2xl bg-white p-3">
+          <div className="rounded-2xl bg-paper-200 p-3">
             <p className="text-sm font-medium text-stone-900">{formel.name}</p>
             {formel.zielgroessen.length > 1 && (
               <div className="mt-2 flex flex-wrap gap-2">
@@ -136,7 +136,7 @@ export function Fehlerfortpflanzung() {
                     key={zId}
                     onClick={() => zielWaehlen(zId)}
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
-                      ziel === zId ? 'bg-accent-600 text-white' : 'bg-paper-200 text-stone-600'
+                      ziel === zId ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
                     }`}
                   >
                     {formel.variablen.find((v) => v.id === zId)?.name}
@@ -151,7 +151,7 @@ export function Fehlerfortpflanzung() {
               const e = eingaben[v.id] ?? { wertText: '', unsicherheitText: '', einheit: v.defaultUnit }
               const dim = dimensions[v.dimension]
               return (
-                <div key={v.id} className="flex flex-col gap-1.5 rounded-2xl bg-white p-3">
+                <div key={v.id} className="flex flex-col gap-1.5 rounded-2xl bg-paper-200 p-3">
                   <span className="text-sm font-medium text-stone-700">{v.name}</span>
                   <div className="flex gap-2">
                     <input
@@ -160,7 +160,7 @@ export function Fehlerfortpflanzung() {
                       placeholder="Wert"
                       value={e.wertText}
                       onChange={(ev) => setEingaben((eg) => ({ ...eg, [v.id]: { ...e, wertText: ev.target.value } }))}
-                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
                     />
                     <input
                       type="text"
@@ -168,7 +168,7 @@ export function Fehlerfortpflanzung() {
                       placeholder="± Unsicherheit"
                       value={e.unsicherheitText}
                       onChange={(ev) => setEingaben((eg) => ({ ...eg, [v.id]: { ...e, unsicherheitText: ev.target.value } }))}
-                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+                      className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
                     />
                     {dim.units.length > 1 ? (
                       <UnitChip

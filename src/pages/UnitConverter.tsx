@@ -74,7 +74,7 @@ export function UnitConverter() {
             onClick={() => dimensionWechseln(id)}
             className={`rounded-full px-3 py-1.5 text-xs font-medium ${
               dimensionId === id
-                ? 'bg-accent-600 text-white'
+                ? 'bg-accent-600 text-ink'
                 : 'bg-paper-200 text-stone-600'
             }`}
           >
@@ -84,7 +84,7 @@ export function UnitConverter() {
       </div>
 
       {dimensionId === 'pressure' && (
-        <div className="flex flex-col gap-3 rounded-2xl bg-white p-3">
+        <div className="flex flex-col gap-3 rounded-2xl bg-paper-200 p-3">
           <DruckTypAuswahl label="Eingabe ist" wert={eingabeTyp} onChange={setEingabeTyp} />
           <DruckTypAuswahl label="Ausgabe ist" wert={ausgabeTyp} onChange={setAusgabeTyp} />
           <label className="flex items-center justify-between gap-2 text-sm text-stone-600">
@@ -97,7 +97,7 @@ export function UnitConverter() {
                 const v = parseDecimal(e.target.value)
                 if (v !== null) ambientAendern(v)
               }}
-              className="w-28 rounded-lg border border-paper-300 bg-white px-2 py-1 text-right"
+              className="w-28 rounded-lg border border-paper-300 bg-paper-200 px-2 py-1 text-right"
             />
           </label>
         </div>
@@ -110,7 +110,7 @@ export function UnitConverter() {
             inputMode="decimal"
             value={eingabe}
             onChange={(e) => setEingabe(e.target.value)}
-            className="min-w-0 flex-1 rounded-xl border border-paper-300 bg-white px-4 py-3 text-lg outline-none focus:border-accent-500"
+            className="min-w-0 flex-1 rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-lg outline-none focus:border-accent-500"
           />
           <UnitChip label={dim.units.find((u) => u.id === vonEinheit)?.label ?? vonEinheit} onClick={() => setVonSheetOffen(true)} />
         </div>
@@ -166,7 +166,7 @@ function DruckTypAuswahl({
             onClick={() => onChange(m)}
             className={`rounded-full px-3 py-1.5 text-xs font-medium ${
               wert === m
-                ? 'bg-accent-600 text-white'
+                ? 'bg-accent-600 text-ink'
                 : 'bg-paper-200 text-stone-600'
             }`}
           >
@@ -190,7 +190,7 @@ function ViskositaetsUmrechner() {
       : null
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-white p-4">
+    <div className="flex flex-col gap-3 rounded-2xl bg-paper-200 p-4">
       <h2 className="text-sm font-semibold text-stone-700">
         Dynamisch → kinematisch (ν = η / ρ)
       </h2>
@@ -202,7 +202,7 @@ function ViskositaetsUmrechner() {
             inputMode="decimal"
             value={eta}
             onChange={(e) => setEta(e.target.value)}
-            className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+            className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
           />
         </label>
         <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-stone-500">
@@ -212,7 +212,7 @@ function ViskositaetsUmrechner() {
             inputMode="decimal"
             value={rho}
             onChange={(e) => setRho(e.target.value)}
-            className="min-w-0 rounded-lg border border-paper-300 bg-white px-3 py-2 text-base"
+            className="min-w-0 rounded-lg border border-paper-300 bg-paper-200 px-3 py-2 text-base"
           />
         </label>
       </div>

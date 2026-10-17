@@ -54,7 +54,7 @@ export function KaufMieteVergleich() {
           inputMode="decimal"
           value={eingaben[key]}
           onChange={(e) => setEingaben((s) => ({ ...s, [key]: e.target.value }))}
-          className="rounded-xl border border-paper-300 bg-white px-4 py-3 text-[16px] outline-none focus:border-accent-500"
+          className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-[16px] outline-none focus:border-accent-500"
         />
       </label>
     )
@@ -118,12 +118,12 @@ export function KaufMieteVergleich() {
           reihen={[
             {
               label: 'Kauf',
-              farbe: '#0f4c5c',
+              farbe: '#c8a86b',
               punkte: werte.kauf.map((v, t) => ({ x: t, y: v })),
             },
             {
               label: 'Miete',
-              farbe: '#2f7d5b',
+              farbe: '#6fae8c',
               punkte: werte.miete.map((v, t) => ({ x: t, y: v })),
             },
           ]}
@@ -131,7 +131,7 @@ export function KaufMieteVergleich() {
       )}
 
       {werte && (
-        <div className="rounded-2xl bg-white p-4 text-[14px]">
+        <div className="rounded-2xl bg-paper-200 p-4 text-[14px]">
           {werte.breakEvenJahr === null ? (
             <p className="text-stone-600">
               Innerhalb der Nutzungsdauer von {werte.n} Jahren amortisiert sich der Kauf gegenüber der Miete
@@ -161,7 +161,7 @@ export function KaufMieteVergleich() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white p-4 text-[14px]">
+      <div className="rounded-2xl bg-paper-200 p-4 text-[14px]">
         <h2 className="mb-1 font-semibold text-stone-800">Annahmen</h2>
         <ul className="list-inside list-disc text-stone-600">
           <li>Wartungs- und Mietkosten jährlich konstant, jeweils am Jahresende fällig (nachschüssig)</li>

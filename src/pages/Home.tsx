@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ScanLine, Bot, Calculator, Library, Search } from 'lucide-react'
 import { getFormel, sucheFormeln } from '../formulas/registry'
 import { SearchBar } from '../components/SearchBar'
 import { FormulaCard } from '../components/FormulaCard'
@@ -7,8 +8,22 @@ import { useFavoriten } from '../hooks/useFavoriten'
 import { useVerlauf } from '../hooks/useVerlauf'
 import { useVerifizierung } from '../hooks/useVerifizierung'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
-import { navigiere } from '../lib/router'
-import { Search } from 'lucide-react'
+import { navigiere, type Route } from '../lib/router'
+
+function begruessung(): string {
+  const stunde = new Date().getHours()
+  if (stunde < 5) return 'Guten Abend'
+  if (stunde < 11) return 'Guten Morgen'
+  if (stunde < 18) return 'Guten Tag'
+  return 'Guten Abend'
+}
+
+const AKTIONEN: { route: Route; icon: typeof ScanLine; erster: string; rest: string }[] = [
+  { route: { name: 'assistent' }, icon: ScanLine, erster: 'AUFGABE', rest: 'SCANNEN' },
+  { route: { name: 'assistent' }, icon: Bot, erster: 'ASSISTENT', rest: 'FRAGEN' },
+  { route: { name: 'rechner' }, icon: Calculator, erster: 'RECHNER', rest: 'ÖFFNEN' },
+  { route: { name: 'bibliothek' }, icon: Library, erster: '', rest: 'BIBLIOTHEK' },
+]
 
 export function Home() {
   useSetHeaderTitle('Start')
@@ -52,17 +67,42 @@ export function Home() {
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-0.5 px-1 pb-1">
+        <span className="eyebrow">Rechenwerk</span>
+        <p className="text-[30px] font-light leading-tight text-stone-900">{begruessung()}.</p>
+        <p className="text-[30px] font-light leading-tight text-stone-500">Was rechnen wir heute?</p>
+      </div>
+
+      <section className="flex flex-col gap-2">
+        <span className="eyebrow px-1">Ich möchte</span>
+        <div className="grid grid-cols-2 gap-2.5">
+          {AKTIONEN.map(({ route, icon: Icon, erster, rest }) => (
+            <button
+              key={rest}
+              onClick={() => navigiere(route)}
+              className="flex flex-col items-start gap-3 rounded-2xl bg-paper-200 p-4 text-left"
+            >
+              <Icon size={28} strokeWidth={1.25} className="text-accent-600" />
+              <span className="text-[14px] font-bold leading-snug tracking-wide text-stone-900">
+                {erster && <span className="font-light text-stone-400">{erster} </span>}
+                {rest}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <SearchBar value={suche} onChange={setSuche} />
 
       {zuletztBenutzt.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h2 className="px-1 text-[13px] font-semibold text-stone-500">Zuletzt verwendet</h2>
+          <span className="eyebrow px-1">Zuletzt verwendet</span>
           <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
             {zuletztBenutzt.map((f) => (
               <button
                 key={f.id}
                 onClick={() => navigiere({ name: 'formel', id: f.id })}
-                className="flex w-36 shrink-0 flex-col items-start gap-1 rounded-2xl bg-white p-3 text-left"
+                className="flex w-36 shrink-0 flex-col items-start gap-1 rounded-2xl bg-paper-200 p-3 text-left"
               >
                 <span className="line-clamp-2 text-[14px] font-medium text-stone-900">{f.name}</span>
                 <span className="truncate text-[12px] text-stone-500">{f.kategorie}</span>
@@ -73,9 +113,9 @@ export function Home() {
       )}
 
       <section className="flex flex-col gap-2">
-        <h2 className="px-1 text-[13px] font-semibold text-stone-500">Favoriten</h2>
+        <span className="eyebrow px-1">Favoriten</span>
         {favoritenFormeln.length === 0 ? (
-          <p className="rounded-2xl bg-white px-4 py-6 text-center text-[13px] text-stone-500">
+          <p className="rounded-2xl bg-paper-200 px-4 py-6 text-center text-[13px] text-stone-500">
             Noch keine Favoriten. Tippe im Rechner auf den Stern, um ihn hier anzupinnen.
           </p>
         ) : (

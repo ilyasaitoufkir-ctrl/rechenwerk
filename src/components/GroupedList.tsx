@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 
 /** iOS-artige gruppierte Liste: weiße Gruppe auf grauem Grund, Haarlinien zwischen Zeilen. */
 export function GroupedList({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col overflow-hidden rounded-2xl bg-white">{children}</div>
+  return <div className="flex flex-col overflow-hidden rounded-2xl bg-paper-200">{children}</div>
 }
 
 export function GroupLabel({ children }: { children: ReactNode }) {

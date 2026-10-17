@@ -51,14 +51,14 @@ export function VerificationBadge({ verifizierung, richtwert, onSetzen }: Props)
             value={notiz}
             onChange={(e) => setNotiz(e.target.value)}
             placeholder="Notiz, z. B. geprüft mit Sigloch, Gl. 6.12"
-            className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-white px-3 py-1.5 text-[13px]"
+            className="min-w-0 flex-1 rounded-lg border border-paper-300 bg-paper-200 px-3 py-1.5 text-[13px]"
           />
           <button
             onClick={() => {
               onSetzen(true, notiz.trim() || undefined)
               setNotizOffen(false)
             }}
-            className="rounded-lg bg-accent-600 px-3 py-1.5 text-[12px] font-medium text-white"
+            className="rounded-lg bg-accent-600 px-3 py-1.5 text-[12px] font-medium text-ink"
           >
             Speichern
           </button>
