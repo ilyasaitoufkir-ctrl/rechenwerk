@@ -4,12 +4,14 @@ import { formatNumber } from '../lib/format'
 import { berechneKennwerte, parseMessreihe, vertrauensbereichMittelwert } from '../lib/statistik'
 import { WarningBanner } from '../components/WarningBanner'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
+import { statistikUebernahmeAbholen } from '../lib/storage'
 
 const VERTRAUENSNIVEAUS = [0.9, 0.95, 0.99] as const
+const BEISPIELWERTE = [12.1, 12.4, 11.9, 12.3, 12.0, 12.6, 11.8]
 
 export function Statistik() {
   useSetHeaderTitle('Statistik')
-  const [werte, setWerte] = useState<number[]>([12.1, 12.4, 11.9, 12.3, 12.0, 12.6, 11.8])
+  const [werte, setWerte] = useState<number[]>(() => statistikUebernahmeAbholen() ?? BEISPIELWERTE)
   const [eingabe, setEingabe] = useState('')
   const [niveau, setNiveau] = useState<number>(0.95)
 

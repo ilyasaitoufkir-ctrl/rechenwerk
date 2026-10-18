@@ -14,6 +14,10 @@ const ROUTEN = [
   '/#/bibliothek',
   '/#/einstellungen',
   '/#/assistent',
+  '/#/backup',
+  '/#/projekte',
+  '/#/eigene-stoffe',
+  '/#/scan',
   '/#/formel/reynolds',
   '/#/formel/zylinderschale-ad2000-b1',
 ]

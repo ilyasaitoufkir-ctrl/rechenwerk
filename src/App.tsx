@@ -32,6 +32,11 @@ const KategorieDetail = lazy(() =>
 const CalculatorPage = lazy(() =>
   import('./pages/CalculatorPage').then((m) => ({ default: m.CalculatorPage })),
 )
+const Backup = lazy(() => import('./pages/Backup').then((m) => ({ default: m.Backup })))
+const EigeneStoffe = lazy(() => import('./pages/EigeneStoffe').then((m) => ({ default: m.EigeneStoffe })))
+const Projekte = lazy(() => import('./pages/Projekte').then((m) => ({ default: m.Projekte })))
+const ProjektDetail = lazy(() => import('./pages/ProjektDetail').then((m) => ({ default: m.ProjektDetail })))
+const Scan = lazy(() => import('./pages/Scan').then((m) => ({ default: m.Scan })))
 
 function Ladeanzeige() {
   return <div className="h-40 animate-pulse rounded-2xl bg-paper-200" />
@@ -73,6 +78,16 @@ function Seite() {
       return <KategorieDetail kategorie={route.kategorie} />
     case 'formel':
       return <CalculatorPage id={route.id} />
+    case 'backup':
+      return <Backup />
+    case 'eigene-stoffe':
+      return <EigeneStoffe />
+    case 'projekte':
+      return <Projekte />
+    case 'projekt':
+      return <ProjektDetail id={route.id} />
+    case 'scan':
+      return <Scan />
   }
 }
 

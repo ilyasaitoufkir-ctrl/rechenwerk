@@ -14,8 +14,7 @@ import {
 } from '../lib/storage'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
 import { navigiere } from '../lib/router'
-
-const MAX_BILD_PIXEL = 1600
+import { bildVerarbeiten } from '../lib/bildverarbeitung'
 
 interface LaufendesWerkzeug {
   id: string
@@ -33,38 +32,6 @@ function extrahiereTitel(nachrichten: Anthropic.MessageParam[]): string {
   const textBlock = erste.content.find((b) => b.type === 'text')
   const text = textBlock && 'text' in textBlock ? textBlock.text : ''
   return text.trim().slice(0, 60) || 'Unterhaltung (Bild)'
-}
-
-/** Verkleinert ein Bild clientseitig auf max. 1600px Kantenlänge, bevor es als Base64 verschickt wird. */
-async function bildVerarbeiten(file: File): Promise<{ mediaType: string; data: string }> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(new Error('Bild konnte nicht gelesen werden.'))
-    reader.readAsDataURL(file)
-  })
-
-  const bild = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error('Bild konnte nicht geladen werden.'))
-    img.src = dataUrl
-  })
-
-  const skala = Math.min(1, MAX_BILD_PIXEL / Math.max(bild.width, bild.height))
-  const breite = Math.round(bild.width * skala)
-  const hoehe = Math.round(bild.height * skala)
-
-  const canvas = document.createElement('canvas')
-  canvas.width = breite
-  canvas.height = hoehe
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Bildverarbeitung nicht verfügbar.')
-  ctx.drawImage(bild, 0, 0, breite, hoehe)
-
-  const verkleinert = canvas.toDataURL('image/jpeg', 0.85)
-  const data = verkleinert.slice(verkleinert.indexOf(',') + 1)
-  return { mediaType: 'image/jpeg', data }
 }
 
 export function Assistent() {

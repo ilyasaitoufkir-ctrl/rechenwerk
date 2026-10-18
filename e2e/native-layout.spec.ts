@@ -27,6 +27,10 @@ const ROUTEN = [
   '/#/fehlerfortpflanzung',
   '/#/mccabe-thiele',
   '/#/assistent',
+  '/#/backup',
+  '/#/projekte',
+  '/#/eigene-stoffe',
+  '/#/scan',
   // Repräsentative Formel-Unterseiten: Standardformel, schichtfeld,
   // komponentenfeld, Druckgeräte-Banner, verschiedene Kategorien.
   '/#/formel/reynolds',

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ScanLine, Bot, Calculator, Library, Search } from 'lucide-react'
+import { ScanLine, Bot, Calculator, Library, Search, FolderKanban } from 'lucide-react'
 import { getFormel, sucheFormeln } from '../formulas/registry'
 import { SearchBar } from '../components/SearchBar'
 import { FormulaCard } from '../components/FormulaCard'
@@ -9,6 +9,7 @@ import { useVerlauf } from '../hooks/useVerlauf'
 import { useVerifizierung } from '../hooks/useVerifizierung'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
 import { navigiere, type Route } from '../lib/router'
+import { getProjekte } from '../lib/storage'
 
 function begruessung(): string {
   const stunde = new Date().getHours()
@@ -19,7 +20,7 @@ function begruessung(): string {
 }
 
 const AKTIONEN: { route: Route; icon: typeof ScanLine; erster: string; rest: string }[] = [
-  { route: { name: 'assistent' }, icon: ScanLine, erster: 'AUFGABE', rest: 'SCANNEN' },
+  { route: { name: 'scan' }, icon: ScanLine, erster: 'AUFGABE', rest: 'SCANNEN' },
   { route: { name: 'assistent' }, icon: Bot, erster: 'ASSISTENT', rest: 'FRAGEN' },
   { route: { name: 'rechner' }, icon: Calculator, erster: 'RECHNER', rest: 'ÖFFNEN' },
   { route: { name: 'bibliothek' }, icon: Library, erster: '', rest: 'BIBLIOTHEK' },
@@ -44,6 +45,7 @@ export function Home() {
   }, [verlauf])
 
   const favoritenFormeln = favoriten.map((id) => getFormel(id)).filter((f) => f !== undefined)
+  const projekte = getProjekte().slice(0, 3)
 
   if (suche.trim()) {
     return (
@@ -93,6 +95,41 @@ export function Home() {
       </section>
 
       <SearchBar value={suche} onChange={setSuche} />
+
+      <section className="flex flex-col gap-2">
+        <div className="flex items-center justify-between px-1">
+          <span className="eyebrow">Projekte</span>
+          {projekte.length > 0 && (
+            <button onClick={() => navigiere({ name: 'projekte' })} className="text-[12px] font-medium text-accent-600">
+              Alle anzeigen
+            </button>
+          )}
+        </div>
+        {projekte.length === 0 ? (
+          <button
+            onClick={() => navigiere({ name: 'projekte' })}
+            className="rounded-2xl bg-paper-200 px-4 py-6 text-center text-[13px] text-stone-500"
+          >
+            Noch keine Projekte. Tippe, um eines anzulegen.
+          </button>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {projekte.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => navigiere({ name: 'projekt', id: p.id })}
+                className="flex items-center gap-3 rounded-2xl bg-paper-200 px-3.5 py-3 text-left"
+              >
+                <FolderKanban size={20} className="shrink-0 text-accent-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[15px] font-medium text-stone-900">{p.name}</p>
+                  <p className="text-[12px] text-stone-500">{p.berechnungen.length} Berechnungen</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
 
       {zuletztBenutzt.length > 0 && (
         <section className="flex flex-col gap-2">

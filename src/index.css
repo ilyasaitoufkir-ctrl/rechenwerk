@@ -248,6 +248,37 @@ textarea {
   }
 }
 
+/* Druckstil (Projekt- und Scan-Berichte als PDF über den Browser-Druckdialog):
+   App-Chrome ausblenden, dunkles Design auf helles Druckbild umschalten.
+   .druckbericht umschließt den druckbaren Inhalt, .no-print blendet
+   Bedienelemente aus, die auf Papier keinen Sinn ergeben. */
+@media print {
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  html,
+  body {
+    position: static !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+  main {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .druckbericht,
+  .druckbericht * {
+    color: #111111 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .druckbericht {
+    padding: 0 !important;
+  }
+}
+
 /* Kategoriebilder: dunkles Overlay (transparent oben -> Hintergrundfarbe 85%
    unten) plus leichte Entsättigung/Abdunkelung, damit weiße Schrift auf jedem
    Foto sicher lesbar bleibt und der Look zum Anthrazit passt. */

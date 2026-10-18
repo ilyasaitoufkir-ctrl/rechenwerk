@@ -10,7 +10,7 @@
  */
 import { alleFormeln, getFormel, sucheFormeln } from '../formulas/registry'
 import { alleDatenTabellen, getDatenTabelle, getZeilen } from '../data/registry'
-import { getVerifizierung } from './storage'
+import { getVerifizierung, getEigeneStoffe } from './storage'
 import { toSI, fromSI, umrechnen, alleEinheiten } from '../units'
 import { DRUCKGERAETE_HINWEIS } from '../formulas/druckgeraete/hinweis'
 
@@ -125,14 +125,17 @@ export function erzeugeWerkzeuge(): ToolDefinition[] {
       name: 'stoffdaten_abfragen',
       description:
         `Fragt eine der Richtwert-Datentabellen von Rechenwerk ab (Rauheiten, Rohrmaße DIN 11850, ` +
-        `Widerstandsbeiwerte, Stoffdaten Wärme, CO₂-Emissionsfaktoren, Werkstoffdichten). ` +
-        `Verfügbare Tabellen: ${datentabellenKompakt()}. Diese Werte sind durchweg Richtwerte mit ` +
-        `unsicherer Quellenzuordnung - das beim Zitieren immer dazusagen.`,
+        `Widerstandsbeiwerte, Stoffdaten Wärme, CO₂-Emissionsfaktoren, Werkstoffdichten) ODER die vom ` +
+        `Nutzer selbst angelegten eigenen Stoffe (Tabelle "eigene-stoffe"). ` +
+        `Verfügbare Tabellen: ${datentabellenKompakt()}; eigene-stoffe (vom Nutzer selbst gepflegte Stoffdaten). ` +
+        `Richtwert-Tabellen haben unsichere Quellenzuordnung - das beim Zitieren immer dazusagen. Eigene ` +
+        `Stoffe sind klar als "eigener Messwert/eigene Daten des Nutzers" zu kennzeichnen, nicht als ` +
+        `geprüfte Rechenwerk-Quelle.`,
       input_schema: {
         type: 'object',
         properties: {
-          tabelle: { type: 'string', description: 'Tabellen-ID, z. B. "tabelle-werkstoffdichten"' },
-          suchbegriff: { type: 'string', description: 'Optionaler Filter, z. B. "Edelstahl"' },
+          tabelle: { type: 'string', description: 'Tabellen-ID, z. B. "tabelle-werkstoffdichten" oder "eigene-stoffe"' },
+          suchbegriff: { type: 'string', description: 'Optionaler Filter, z. B. "Edelstahl" oder Stoffname' },
         },
         required: ['tabelle'],
         additionalProperties: false,
@@ -308,11 +311,35 @@ function werkzeugEinheitUmrechnen(input: Record<string, unknown>): WerkzeugErgeb
 function werkzeugStoffdatenAbfragen(input: Record<string, unknown>): WerkzeugErgebnis {
   const tabelle = typeof input.tabelle === 'string' ? input.tabelle : ''
   const suchbegriff = typeof input.suchbegriff === 'string' ? input.suchbegriff : undefined
+
+  if (tabelle === 'eigene-stoffe') {
+    const alle = getEigeneStoffe()
+    const gefiltert = suchbegriff
+      ? alle.filter((s) => s.name.toLowerCase().includes(suchbegriff.toLowerCase()))
+      : alle
+    return {
+      fuerClaude: {
+        tabelle: 'Eigene Stoffdaten',
+        kategorie: 'eigene Daten des Nutzers - KEINE geprüfte Rechenwerk-Quelle',
+        zeilen: gefiltert.map((s) => ({
+          name: s.name,
+          eigenerMesswert: s.eigenerMesswert,
+          quelleOderNotiz: s.quelle,
+          dichteKgM3: s.dichteKgM3,
+          viskositaetPas: s.viskositaetPas,
+          cpJkgK: s.cpJkgK,
+          lambdaWmK: s.lambdaWmK,
+          temperaturabhaengig: Boolean(s.stuetzstellen?.length),
+        })),
+      },
+    }
+  }
+
   const tab = getDatenTabelle(tabelle)
   if (!tab) {
     return {
       fuerClaude: {
-        fehler: `Tabelle "${tabelle}" ist unbekannt. Gültige IDs: ${alleDatenTabellen.map((t) => t.id).join(', ')}.`,
+        fehler: `Tabelle "${tabelle}" ist unbekannt. Gültige IDs: ${alleDatenTabellen.map((t) => t.id).join(', ')}, eigene-stoffe.`,
       },
     }
   }
@@ -340,4 +367,132 @@ export function fuehreWerkzeugAus(name: string, input: Record<string, unknown>):
 /** Nur für Tests/Diagnose: Anzahl Formeln, die der Assistent grundsätzlich berechnen kann. */
 export function anzahlBerechenbarerFormeln(): number {
   return alleFormeln.filter((f) => !f.schichtfeld && !f.komponentenfeld).length
+}
+
+/* ------------------------- Aufgabe scannen: Erkennungswerkzeuge -------------------------
+ * Eigene, erzwungene Werkzeuge (tool_choice) nur für den Erkennen-Schritt des Scan-Features.
+ * Sie liefern ausschließlich strukturierte Rohdaten aus dem Foto zurück - keine Berechnung,
+ * kein Rechenwerk-Wissen. Der Nutzer bestätigt/korrigiert die Werte, bevor irgendetwas davon
+ * verwendet wird (siehe src/pages/Scan.tsx).
+ */
+export type ScanModus = 'aufgabe' | 'typenschild' | 'messprotokoll'
+
+export interface ErkannteGroesse {
+  groesse: string
+  wert: number
+  einheit: string
+  unsicher: boolean
+}
+
+export interface AufgabeErkennung {
+  gegeben: ErkannteGroesse[]
+  gesucht: string[]
+  annahmen: string[]
+}
+
+export interface TypenschildErkennung {
+  leistungKw?: number
+  drehzahlUpm?: number
+  foerderhoeheM?: number
+  volumenstromM3h?: number
+  spannungV?: number
+  unsicher: string[]
+}
+
+export interface MessprotokollReihe {
+  groesse: string
+  einheit: string
+  werte: number[]
+  unsicher: boolean
+}
+
+export interface MessprotokollErkennung {
+  reihen: MessprotokollReihe[]
+}
+
+export function erzeugeErkennungsWerkzeug(modus: ScanModus): ToolDefinition {
+  if (modus === 'typenschild') {
+    return {
+      name: 'typenschild_melden',
+      description:
+        'Meldet die auf einem Pumpen- oder Motortypenschild erkannten Daten. Nur tatsächlich auf dem ' +
+        'Foto lesbare Werte angeben, nichts ergänzen oder schätzen. Unsicher gelesene Felder in "unsicher" nennen.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          leistungKw: { type: 'number', description: 'Nennleistung in kW, falls lesbar' },
+          drehzahlUpm: { type: 'number', description: 'Drehzahl in 1/min, falls lesbar' },
+          foerderhoeheM: { type: 'number', description: 'Förderhöhe in m, falls lesbar (Pumpe)' },
+          volumenstromM3h: { type: 'number', description: 'Volumenstrom in m³/h, falls lesbar (Pumpe)' },
+          spannungV: { type: 'number', description: 'Spannung in V, falls lesbar' },
+          unsicher: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Namen der Felder, die nur unsicher/schlecht lesbar waren',
+          },
+        },
+        required: ['unsicher'],
+        additionalProperties: false,
+      },
+    }
+  }
+  if (modus === 'messprotokoll') {
+    return {
+      name: 'messprotokoll_melden',
+      description:
+        'Meldet handschriftlich erkannte Messreihen aus einem Messprotokoll-Foto, je Größe eine Reihe ' +
+        'von Werten in der angegebenen Einheit. Nur tatsächlich lesbare Werte übernehmen.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          reihen: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                groesse: { type: 'string', description: 'Name der Messgröße, z. B. "Druck" oder "Temperatur"' },
+                einheit: { type: 'string', description: 'Einheit wie auf dem Protokoll notiert, z. B. "bar"' },
+                werte: { type: 'array', items: { type: 'number' } },
+                unsicher: { type: 'boolean', description: 'true, wenn Teile dieser Reihe schlecht lesbar waren' },
+              },
+              required: ['groesse', 'einheit', 'werte', 'unsicher'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['reihen'],
+        additionalProperties: false,
+      },
+    }
+  }
+  return {
+    name: 'aufgabe_struktur_melden',
+    description:
+      'Meldet die aus einem oder mehreren Fotos einer Verfahrenstechnik-Aufgabe erkannte Struktur: ' +
+      'gegebene Größen mit Wert und Einheit, gesuchte Größen und explizit genannte Annahmen. Noch keine ' +
+      'Berechnung - nur Erkennung. Unsicher gelesene Werte mit unsicher=true markieren statt sie zu raten.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        gegeben: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              groesse: { type: 'string', description: 'Name der Größe, z. B. "Rohrdurchmesser"' },
+              wert: { type: 'number' },
+              einheit: { type: 'string' },
+              unsicher: { type: 'boolean' },
+            },
+            required: ['groesse', 'wert', 'einheit', 'unsicher'],
+            additionalProperties: false,
+          },
+        },
+        gesucht: { type: 'array', items: { type: 'string' } },
+        annahmen: { type: 'array', items: { type: 'string' } },
+      },
+      required: ['gegeben', 'gesucht', 'annahmen'],
+      additionalProperties: false,
+    },
+  }
 }

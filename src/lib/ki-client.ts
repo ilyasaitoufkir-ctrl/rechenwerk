@@ -8,7 +8,7 @@
  * Build vollständig entfernt, keine Laufzeitkosten im Browser-Bundle).
  */
 import type Anthropic from '@anthropic-ai/sdk'
-import { erzeugeWerkzeuge, fuehreWerkzeugAus, type RechnerLink } from './ki-werkzeuge'
+import { erzeugeWerkzeuge, fuehreWerkzeugAus, erzeugeErkennungsWerkzeug, type RechnerLink, type ScanModus } from './ki-werkzeuge'
 
 const MAX_RUNDEN = 8
 
@@ -201,4 +201,76 @@ export async function* fuehreGespraechsrundeAus(
   }
 
   yield { typ: 'maxRundenErreicht' }
+}
+
+export interface ErkennungErgebnis<T> {
+  daten?: T
+  fehler?: string
+}
+
+/**
+ * Erkennen-Schritt des Scan-Features: ein einzelner, erzwungener Werkzeugaufruf (tool_choice),
+ * der nur Rohdaten aus dem/den Foto(s) strukturiert zurückmeldet - keine Berechnung, kein
+ * Rechenwerk-Wissen. Der Nutzer bestätigt/korrigiert das Ergebnis, bevor es irgendwo verwendet wird.
+ */
+export async function erkenneMitFoto<T>(
+  zugangscode: string,
+  modus: ScanModus,
+  bilder: { mediaType: string; data: string }[],
+  zusatzText: string,
+  signal?: AbortSignal,
+): Promise<ErkennungErgebnis<T>> {
+  if (istOffline()) {
+    return { fehler: 'Keine Internetverbindung. Zum Erkennen wird eine Verbindung zum Server benötigt.' }
+  }
+
+  const werkzeug = erzeugeErkennungsWerkzeug(modus)
+  const inhalt: Anthropic.ContentBlockParam[] = bilder.map((b) => ({
+    type: 'image',
+    source: { type: 'base64', media_type: b.mediaType, data: b.data } as Anthropic.Base64ImageSource,
+  }))
+  if (zusatzText) inhalt.push({ type: 'text', text: zusatzText })
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: inhalt }]
+
+  let response: Response
+  try {
+    response = await fetch('/api/assistent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Access-Code': zugangscode },
+      body: JSON.stringify({ messages, tools: [werkzeug], tool_choice: { type: 'tool', name: werkzeug.name } }),
+      signal,
+    })
+  } catch {
+    return { fehler: 'Verbindung zum Server fehlgeschlagen. Bitte Internetverbindung prüfen.' }
+  }
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      return { fehler: 'Zugangscode fehlt oder ist falsch. Bitte in den Assistent-Einstellungen prüfen.' }
+    }
+    let text = 'Die Erkennung ist aktuell nicht erreichbar.'
+    try {
+      const body = (await response.json()) as { error?: string }
+      if (body.error) text = body.error
+    } catch {
+      // kein JSON-Fehlerkörper - Standardtext verwenden
+    }
+    return { fehler: text }
+  }
+
+  for await (const ereignis of leseSseStream(response)) {
+    if (ereignis.type === 'final' && ereignis.message && typeof ereignis.message !== 'string') {
+      const toolBlock = ereignis.message.content.find(
+        (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use',
+      )
+      if (!toolBlock) {
+        return { fehler: 'Die Erkennung hat kein auswertbares Ergebnis geliefert.' }
+      }
+      return { daten: toolBlock.input as T }
+    }
+    if (ereignis.type === 'error') {
+      return { fehler: typeof ereignis.message === 'string' ? ereignis.message : 'Unbekannter Fehler bei der Erkennung.' }
+    }
+  }
+  return { fehler: 'Verbindung wurde unterbrochen, bevor ein Ergebnis vollständig war.' }
 }

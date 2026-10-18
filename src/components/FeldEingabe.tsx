@@ -1,9 +1,18 @@
 import { useId, useState } from 'react'
-import { ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft, FlaskConical } from 'lucide-react'
 import type { Variable } from '../types/formula'
-import { dimensions } from '../units'
+import { dimensions, fromSI } from '../units'
 import { UnitChip } from './UnitChip'
 import { UnitPickerSheet } from './UnitPickerSheet'
+import { StoffWaehlenSheet } from './StoffWaehlenSheet'
+import type { StoffEigenschaft } from '../lib/stoffinterpolation'
+
+const STOFF_EIGENSCHAFT_JE_DIMENSION: Partial<Record<Variable['dimension'], StoffEigenschaft>> = {
+  density: 'dichteKgM3',
+  dynamicViscosity: 'viskositaetPas',
+  specificHeatCapacity: 'cpJkgK',
+  thermalConductivity: 'lambdaWmK',
+}
 
 interface Props {
   variable: Variable
@@ -29,6 +38,8 @@ export function FeldEingabe({
   const id = useId()
   const dim = dimensions[variable.dimension]
   const [sheetOffen, setSheetOffen] = useState(false)
+  const [stoffSheetOffen, setStoffSheetOffen] = useState(false)
+  const stoffEigenschaft = STOFF_EIGENSCHAFT_JE_DIMENSION[variable.dimension]
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -52,15 +63,26 @@ export function FeldEingabe({
           <span className="flex items-center px-2 text-[13px] text-stone-500">{dim.units[0]?.label}</span>
         )}
       </div>
-      {einfuegenVorschlag && (
-        <button
-          onClick={einfuegenVorschlag.onClick}
-          className="flex items-center gap-1.5 self-start rounded-lg bg-accent-50 px-2.5 py-1 text-[12px] font-medium text-accent-700"
-        >
-          <ArrowRightLeft size={13} />
-          {einfuegenVorschlag.label}
-        </button>
-      )}
+      <div className="flex flex-wrap gap-1.5">
+        {einfuegenVorschlag && (
+          <button
+            onClick={einfuegenVorschlag.onClick}
+            className="flex items-center gap-1.5 self-start rounded-lg bg-accent-50 px-2.5 py-1 text-[12px] font-medium text-accent-700"
+          >
+            <ArrowRightLeft size={13} />
+            {einfuegenVorschlag.label}
+          </button>
+        )}
+        {stoffEigenschaft && (
+          <button
+            onClick={() => setStoffSheetOffen(true)}
+            className="flex items-center gap-1.5 self-start rounded-lg bg-accent-50 px-2.5 py-1 text-[12px] font-medium text-accent-700"
+          >
+            <FlaskConical size={13} />
+            Stoff wählen
+          </button>
+        )}
+      </div>
       {variable.hinweis && <p className="text-[12px] text-stone-500">{variable.hinweis}</p>}
       {fehler && <p className="text-[12px] text-red-600">{fehler}</p>}
 
@@ -72,6 +94,14 @@ export function FeldEingabe({
         onSelect={onEinheitChange}
         titel={variable.name}
       />
+      {stoffEigenschaft && (
+        <StoffWaehlenSheet
+          offen={stoffSheetOffen}
+          onClose={() => setStoffSheetOffen(false)}
+          eigenschaft={stoffEigenschaft}
+          onSelect={(wertSI) => onWertChange(String(fromSI(wertSI, variable.dimension, einheit)))}
+        />
+      )}
     </div>
   )
 }

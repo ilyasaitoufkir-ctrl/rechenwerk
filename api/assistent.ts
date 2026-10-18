@@ -120,7 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     return
   }
 
-  const body = req.body as { messages?: unknown; tools?: unknown } | undefined
+  const body = req.body as { messages?: unknown; tools?: unknown; tool_choice?: unknown } | undefined
   if (!body || !Array.isArray(body.messages) || body.messages.length === 0) {
     sendeJson(res, 400, { error: 'Feld "messages" fehlt oder ist leer.' })
     return
@@ -131,6 +131,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   }
   if (body.tools !== undefined && (!Array.isArray(body.tools) || body.tools.length > MAX_TOOLS)) {
     sendeJson(res, 400, { error: 'Feld "tools" ist ungültig.' })
+    return
+  }
+  if (body.tool_choice !== undefined && (typeof body.tool_choice !== 'object' || body.tool_choice === null)) {
+    sendeJson(res, 400, { error: 'Feld "tool_choice" ist ungültig.' })
     return
   }
 
@@ -166,6 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       thinking: { type: 'adaptive' },
       output_config: { effort: 'low' },
       tools: body.tools as Anthropic.Tool[],
+      ...(body.tool_choice ? { tool_choice: body.tool_choice as Anthropic.ToolChoice } : {}),
       messages: body.messages as Anthropic.MessageParam[],
     })
 

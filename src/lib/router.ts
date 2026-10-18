@@ -17,6 +17,11 @@ export type Route =
   | { name: 'assistent' }
   | { name: 'rechner-kategorie'; kategorie: string }
   | { name: 'formel'; id: string }
+  | { name: 'backup' }
+  | { name: 'projekte' }
+  | { name: 'projekt'; id: string }
+  | { name: 'eigene-stoffe' }
+  | { name: 'scan' }
 
 /** Tab-Wurzeln: großer Titel, keine Zurück-Navigation. */
 export const TAB_ROUTEN = ['home', 'rechner', 'assistent', 'bibliothek', 'einstellungen'] as const
@@ -35,6 +40,10 @@ const EINFACHE_ROUTEN = [
   'fehlerfortpflanzung',
   'mccabe-thiele',
   'assistent',
+  'backup',
+  'projekte',
+  'eigene-stoffe',
+  'scan',
 ] as const
 
 function parseHash(hash: string): Route {
@@ -42,6 +51,7 @@ function parseHash(hash: string): Route {
   const [segment, id] = path.split('/')
   if (segment === 'formel' && id) return { name: 'formel', id: decodeURIComponent(id) }
   if (segment === 'rechner-kategorie' && id) return { name: 'rechner-kategorie', kategorie: decodeURIComponent(id) }
+  if (segment === 'projekt' && id) return { name: 'projekt', id: decodeURIComponent(id) }
   const einfach = EINFACHE_ROUTEN.find((r) => r === segment)
   if (einfach) return { name: einfach }
   return { name: 'home' }
@@ -55,7 +65,9 @@ export function navigiere(route: Route): void {
         ? `#/formel/${encodeURIComponent(route.id)}`
         : route.name === 'rechner-kategorie'
           ? `#/rechner-kategorie/${encodeURIComponent(route.kategorie)}`
-          : `#/${route.name}`
+          : route.name === 'projekt'
+            ? `#/projekt/${encodeURIComponent(route.id)}`
+            : `#/${route.name}`
   window.location.hash = hash
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { History, Minus, Plus } from 'lucide-react'
+import { History, Minus, Plus, Database, FlaskConical, AlertTriangle } from 'lucide-react'
 import { GroupedList, GroupedRow, GroupLabel } from '../components/GroupedList'
 import { useEinstellungen } from '../hooks/useEinstellungen'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
@@ -9,7 +9,15 @@ import {
   getKiZugangscode,
   setKiZugangscode,
   getKiNutzung,
+  getLetztesBackup,
 } from '../lib/storage'
+
+const MS_PRO_TAG = 86_400_000
+
+function backupIstAbgelaufen(letztesBackup: number | null): boolean {
+  if (letztesBackup === null) return true
+  return Date.now() - letztesBackup > 30 * MS_PRO_TAG
+}
 
 const PREIS_PRO_MTOK = { input: 2, output: 10, cacheRead: 0.2, cacheWrite: 2.5 }
 
@@ -29,13 +37,29 @@ export function Einstellungen() {
   const [codeEingabe, setCodeEingabe] = useState('')
   const [ambientText, setAmbientText] = useState(String(ambientDruckPa))
   const nutzung = getKiNutzung()
+  const letztesBackup = getLetztesBackup()
 
   return (
     <div className="flex flex-col gap-6">
+      {backupIstAbgelaufen(letztesBackup) && (
+        <button
+          onClick={() => navigiere({ name: 'backup' })}
+          className="flex items-center gap-2 rounded-2xl bg-amber-100 p-3 text-left text-[13px] text-amber-800"
+        >
+          <AlertTriangle size={16} className="shrink-0" />
+          <span>
+            {letztesBackup ? 'Dein letztes Backup ist mehr als 30 Tage alt.' : 'Du hast noch kein Backup erstellt.'}{' '}
+            Jetzt sichern?
+          </span>
+        </button>
+      )}
+
       <section className="flex flex-col gap-1.5">
-        <GroupLabel>Verlauf</GroupLabel>
+        <GroupLabel>Daten</GroupLabel>
         <GroupedList>
           <GroupedRow label="Berechnungsverlauf" icon={<History size={18} />} onClick={() => navigiere({ name: 'verlauf' })} />
+          <GroupedRow label="Eigene Stoffdaten" icon={<FlaskConical size={18} />} onClick={() => navigiere({ name: 'eigene-stoffe' })} />
+          <GroupedRow label="Backup" icon={<Database size={18} />} onClick={() => navigiere({ name: 'backup' })} />
         </GroupedList>
       </section>
 

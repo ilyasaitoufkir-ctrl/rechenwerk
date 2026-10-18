@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, Info, Star } from 'lucide-react'
+import { ChevronDown, Info, Star, FolderPlus } from 'lucide-react'
 import type { Formula, Variable } from '../types/formula'
 import { toSI, fromSI } from '../units'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { getLetzteEingaben, setLetzteEingaben, verlaufEintragHinzufuegen } from '../lib/storage'
+import type { ProjektBerechnung } from '../lib/storage'
 import { useVerifizierung } from '../hooks/useVerifizierung'
 import { useFavoriten } from '../hooks/useFavoriten'
 import { useEinstellungen } from '../hooks/useEinstellungen'
@@ -19,6 +20,7 @@ import { VerificationBadge } from './VerificationBadge'
 import { KatexBlock } from './KatexBlock'
 import { DruckgeraeteBanner } from './DruckgeraeteBanner'
 import { KategorieBild } from './KategorieBild'
+import { ZuProjektHinzufuegenSheet } from './ZuProjektHinzufuegenSheet'
 
 interface GespeicherterZustand {
   ziel?: string
@@ -53,6 +55,7 @@ export function Calculator({ formel }: { formel: Formula }) {
     return initial
   })
   const [rechenwegOffen, setRechenwegOffen] = useState(false)
+  const [projektSheetOffen, setProjektSheetOffen] = useState(false)
   const [schichtSumme, setSchichtSumme] = useState<number | null>(null)
   const schichtVariableId = formel.schichtfeld?.zielVariable
   const [komponentenSummen, setKomponentenSummen] = useState<Record<string, number> | null>(null)
@@ -136,6 +139,21 @@ export function Calculator({ formel }: { formel: Formula }) {
 
   const warnungen = ergebnis ? formel.warnungen?.(bekanntSI, ziel, ergebnis) ?? [] : []
   const empfehlung = ergebnis ? formel.empfehlung?.(ergebnis) : undefined
+
+  const projektBerechnung: Omit<ProjektBerechnung, 'id'> | null = ergebnis
+    ? {
+        formelId: formel.id,
+        formelName: formel.name,
+        kategorie: formel.kategorie,
+        bekannt: bekanntSI,
+        ziel,
+        ergebnis,
+        quelle: formel.quelle,
+        verifiziert: verifizierungen[formel.id]?.verifiziert ?? false,
+        richtwert: formel.richtwert ?? false,
+        zeitpunkt: Date.now(),
+      }
+    : null
 
   const bekanntSIKey = JSON.stringify(bekanntSI)
   useEffect(() => {
@@ -299,6 +317,16 @@ export function Calculator({ formel }: { formel: Formula }) {
       {empfehlung && <WarningBanner nachrichten={[empfehlung]} variante="info" />}
       {warnungen.length > 0 && <WarningBanner nachrichten={warnungen} />}
 
+      {ergebnis && (
+        <button
+          onClick={() => setProjektSheetOffen(true)}
+          className="flex items-center justify-center gap-1.5 rounded-xl bg-paper-200 px-4 py-2.5 text-[14px] font-medium text-stone-700"
+        >
+          <FolderPlus size={16} />
+          Zu Projekt hinzufügen
+        </button>
+      )}
+
       <button
         onClick={() => setRechenwegOffen((o) => !o)}
         className="flex items-center justify-between rounded-2xl bg-paper-200 px-4 py-3 text-left text-[15px] font-medium text-stone-700"
@@ -374,6 +402,12 @@ export function Calculator({ formel }: { formel: Formula }) {
           </section>
         </div>
       )}
+
+      <ZuProjektHinzufuegenSheet
+        offen={projektSheetOffen}
+        onClose={() => setProjektSheetOffen(false)}
+        berechnung={projektBerechnung}
+      />
     </div>
   )
 }

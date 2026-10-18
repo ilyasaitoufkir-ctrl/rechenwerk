@@ -1,19 +1,44 @@
-import { Trash2, History as HistoryIcon } from 'lucide-react'
+import { useState } from 'react'
+import { Trash2, History as HistoryIcon, FolderPlus } from 'lucide-react'
 import { useVerlauf } from '../hooks/useVerlauf'
+import { useVerifizierung } from '../hooks/useVerifizierung'
 import { getFormel } from '../formulas/registry'
 import { formatNumber } from '../lib/format'
 import { fromSI } from '../units'
 import { navigiere } from '../lib/router'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
 import { EmptyState } from '../components/EmptyState'
+import { ZuProjektHinzufuegenSheet } from '../components/ZuProjektHinzufuegenSheet'
+import type { ProjektBerechnung, VerlaufEintrag } from '../lib/storage'
 
 export function History() {
   useSetHeaderTitle('Verlauf')
   const { verlauf, loeschen, leeren } = useVerlauf()
+  const { verifizierungen } = useVerifizierung()
+  const [ausgewaehlt, setAusgewaehlt] = useState<VerlaufEintrag | null>(null)
 
   if (verlauf.length === 0) {
     return <EmptyState icon={HistoryIcon} text="Noch keine Berechnungen im Verlauf. Deine letzten 50 Berechnungen erscheinen hier." />
   }
+
+  const berechnung: Omit<ProjektBerechnung, 'id'> | null = ausgewaehlt
+    ? (() => {
+        const formel = getFormel(ausgewaehlt.formelId)
+        if (!formel) return null
+        return {
+          formelId: formel.id,
+          formelName: formel.name,
+          kategorie: formel.kategorie,
+          bekannt: ausgewaehlt.bekannt,
+          ziel: ausgewaehlt.ziel,
+          ergebnis: ausgewaehlt.ergebnis,
+          quelle: formel.quelle,
+          verifiziert: verifizierungen[formel.id]?.verifiziert ?? false,
+          richtwert: formel.richtwert ?? false,
+          zeitpunkt: ausgewaehlt.zeitpunkt,
+        }
+      })()
+    : null
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,7 +55,7 @@ export function History() {
           const wert = zielVar ? fromSI(eintrag.ergebnis[eintrag.ziel], zielVar.dimension, zielVar.defaultUnit) : undefined
 
           return (
-            <div key={eintrag.id} className="flex items-center gap-2 rounded-2xl bg-paper-200 px-3 py-3">
+            <div key={eintrag.id} className="flex items-center gap-1 rounded-2xl bg-paper-200 px-3 py-3">
               <button
                 onClick={() => formel && navigiere({ name: 'formel', id: formel.id })}
                 className="min-w-0 flex-1 text-left"
@@ -41,6 +66,13 @@ export function History() {
                   {zielVar && wert !== undefined ? ` · ${zielVar.name} = ${formatNumber(wert, 4)} ${zielVar.defaultUnit}` : ''}
                 </p>
               </button>
+              <button
+                onClick={() => setAusgewaehlt(eintrag)}
+                aria-label="Zu Projekt hinzufügen"
+                className="shrink-0 rounded-lg p-2 text-stone-400"
+              >
+                <FolderPlus size={18} />
+              </button>
               <button onClick={() => loeschen(eintrag.id)} aria-label="Eintrag löschen" className="shrink-0 rounded-lg p-2 text-stone-400">
                 <Trash2 size={18} />
               </button>
@@ -48,6 +80,8 @@ export function History() {
           )
         })}
       </div>
+
+      <ZuProjektHinzufuegenSheet offen={ausgewaehlt !== null} onClose={() => setAusgewaehlt(null)} berechnung={berechnung} />
     </div>
   )
 }

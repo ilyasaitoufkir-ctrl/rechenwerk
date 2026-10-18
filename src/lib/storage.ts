@@ -4,6 +4,7 @@
  * funktionieren - dann eben ohne Persistenz.
  */
 import type Anthropic from '@anthropic-ai/sdk'
+import type { Quelle } from '../types/formula'
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -33,6 +34,10 @@ const KEYS = {
   kiZugangscode: 'rechenwerk:ki-zugangscode',
   kiKonversationen: 'rechenwerk:ki-konversationen',
   kiNutzung: 'rechenwerk:ki-nutzung',
+  projekte: 'rechenwerk:projekte',
+  eigeneStoffe: 'rechenwerk:eigene-stoffe',
+  letztesBackup: 'rechenwerk:letztes-backup',
+  statistikUebernahme: 'rechenwerk:statistik-uebernahme',
 } as const
 
 export function getFavoriten(): string[] {
@@ -93,6 +98,10 @@ export function verlaufLeeren(): void {
   write(KEYS.verlauf, [])
 }
 
+export function setVerlauf(eintraege: VerlaufEintrag[]): void {
+  write(KEYS.verlauf, eintraege.slice(0, MAX_VERLAUF))
+}
+
 export interface Verifizierung {
   formelId: string
   verifiziert: boolean
@@ -123,6 +132,10 @@ export function verifizierungSetzen(
   alle[formelId] = eintrag
   write(KEYS.verifizierungen, alle)
   return eintrag
+}
+
+export function setVerifizierungen(verifizierungen: Record<string, Verifizierung>): void {
+  write(KEYS.verifizierungen, verifizierungen)
 }
 
 export function getSignifikanteStellen(): number {
@@ -195,6 +208,10 @@ export function kiKonversationLoeschen(id: string): KiKonversation[] {
   return neue
 }
 
+export function setKiKonversationen(konversationen: KiKonversation[]): void {
+  write(KEYS.kiKonversationen, konversationen.slice(0, MAX_KI_KONVERSATIONEN))
+}
+
 export interface KiNutzung {
   anfragen: number
   inputTokens: number
@@ -230,4 +247,206 @@ export function kiNutzungHinzufuegen(delta: Omit<KiNutzung, 'anfragen'>): KiNutz
 
 export function kiNutzungZuruecksetzen(): void {
   write(KEYS.kiNutzung, KI_NUTZUNG_LEER)
+}
+
+/* ---------------------------- Projekte ---------------------------- */
+
+export interface ProjektBerechnung {
+  id: string
+  formelId: string
+  formelName: string
+  kategorie: string
+  /** Bekannte Werte in SI */
+  bekannt: Record<string, number>
+  ziel: string
+  /** Ergebnis(e) in SI */
+  ergebnis: Record<string, number>
+  quelle: Quelle
+  verifiziert: boolean
+  richtwert: boolean
+  zeitpunkt: number
+}
+
+export interface ProjektNotiz {
+  id: string
+  text: string
+  zeitpunkt: number
+}
+
+export interface Projekt {
+  id: string
+  name: string
+  beschreibung: string
+  notizen: ProjektNotiz[]
+  berechnungen: ProjektBerechnung[]
+  /** Referenzen auf Fotos in IndexedDB (siehe lib/idb.ts) */
+  fotoIds: string[]
+  erstelltAm: number
+  aktualisiertAm: number
+}
+
+export function getProjekte(): Projekt[] {
+  return read<Projekt[]>(KEYS.projekte, [])
+}
+
+export function getProjekt(id: string): Projekt | undefined {
+  return getProjekte().find((p) => p.id === id)
+}
+
+function neueId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+export function projektAnlegen(name: string, beschreibung: string): Projekt {
+  const neu: Projekt = {
+    id: neueId(),
+    name,
+    beschreibung,
+    notizen: [],
+    berechnungen: [],
+    fotoIds: [],
+    erstelltAm: Date.now(),
+    aktualisiertAm: Date.now(),
+  }
+  write(KEYS.projekte, [neu, ...getProjekte()])
+  return neu
+}
+
+function projektAktualisieren(id: string, patch: (p: Projekt) => Projekt): Projekt[] {
+  const neue = getProjekte().map((p) => (p.id === id ? { ...patch(p), aktualisiertAm: Date.now() } : p))
+  write(KEYS.projekte, neue)
+  return neue
+}
+
+export function setProjekte(projekte: Projekt[]): void {
+  write(KEYS.projekte, projekte)
+}
+
+export function projektLoeschen(id: string): Projekt[] {
+  const neue = getProjekte().filter((p) => p.id !== id)
+  write(KEYS.projekte, neue)
+  return neue
+}
+
+export function projektBearbeiten(id: string, patch: { name?: string; beschreibung?: string }): Projekt[] {
+  return projektAktualisieren(id, (p) => ({ ...p, ...patch }))
+}
+
+export function projektBerechnungHinzufuegen(
+  projektId: string,
+  berechnung: Omit<ProjektBerechnung, 'id'>,
+): Projekt[] {
+  return projektAktualisieren(projektId, (p) => ({
+    ...p,
+    berechnungen: [{ ...berechnung, id: neueId() }, ...p.berechnungen],
+  }))
+}
+
+export function projektBerechnungEntfernen(projektId: string, berechnungId: string): Projekt[] {
+  return projektAktualisieren(projektId, (p) => ({
+    ...p,
+    berechnungen: p.berechnungen.filter((b) => b.id !== berechnungId),
+  }))
+}
+
+export function projektNotizHinzufuegen(projektId: string, text: string): Projekt[] {
+  return projektAktualisieren(projektId, (p) => ({
+    ...p,
+    notizen: [{ id: neueId(), text, zeitpunkt: Date.now() }, ...p.notizen],
+  }))
+}
+
+export function projektNotizEntfernen(projektId: string, notizId: string): Projekt[] {
+  return projektAktualisieren(projektId, (p) => ({
+    ...p,
+    notizen: p.notizen.filter((n) => n.id !== notizId),
+  }))
+}
+
+export function projektFotoHinzufuegen(projektId: string, fotoId: string): Projekt[] {
+  return projektAktualisieren(projektId, (p) => ({ ...p, fotoIds: [...p.fotoIds, fotoId] }))
+}
+
+export function projektFotoEntfernen(projektId: string, fotoId: string): Projekt[] {
+  return projektAktualisieren(projektId, (p) => ({ ...p, fotoIds: p.fotoIds.filter((id) => id !== fotoId) }))
+}
+
+/* ------------------------- Eigene Stoffdaten ------------------------- */
+
+export interface StoffStuetzstelle {
+  temperaturK: number
+  dichteKgM3?: number
+  viskositaetPas?: number
+  cpJkgK?: number
+  lambdaWmK?: number
+}
+
+export interface EigenerStoff {
+  id: string
+  name: string
+  quelle: string
+  eigenerMesswert: boolean
+  dichteKgM3?: number
+  viskositaetPas?: number
+  cpJkgK?: number
+  lambdaWmK?: number
+  /** Wenn vorhanden, werden Werte temperaturabhängig linear interpoliert statt der festen Felder oben. */
+  stuetzstellen?: StoffStuetzstelle[]
+  erstelltAm: number
+  aktualisiertAm: number
+}
+
+export function getEigeneStoffe(): EigenerStoff[] {
+  return read<EigenerStoff[]>(KEYS.eigeneStoffe, [])
+}
+
+export function getEigenerStoff(id: string): EigenerStoff | undefined {
+  return getEigeneStoffe().find((s) => s.id === id)
+}
+
+export function eigenerStoffSpeichern(stoff: Omit<EigenerStoff, 'id' | 'erstelltAm' | 'aktualisiertAm'> & { id?: string }): EigenerStoff[] {
+  const alle = getEigeneStoffe()
+  const jetzt = Date.now()
+  if (stoff.id) {
+    const neue = alle.map((s) => (s.id === stoff.id ? { ...s, ...stoff, id: s.id, aktualisiertAm: jetzt } : s))
+    write(KEYS.eigeneStoffe, neue)
+    return neue
+  }
+  const neu: EigenerStoff = { ...stoff, id: neueId(), erstelltAm: jetzt, aktualisiertAm: jetzt }
+  const neue = [neu, ...alle]
+  write(KEYS.eigeneStoffe, neue)
+  return neue
+}
+
+export function eigenerStoffLoeschen(id: string): EigenerStoff[] {
+  const neue = getEigeneStoffe().filter((s) => s.id !== id)
+  write(KEYS.eigeneStoffe, neue)
+  return neue
+}
+
+export function setEigeneStoffe(stoffe: EigenerStoff[]): void {
+  write(KEYS.eigeneStoffe, stoffe)
+}
+
+/* ----------------------------- Backup ----------------------------- */
+
+export function getLetztesBackup(): number | null {
+  return read<number | null>(KEYS.letztesBackup, null)
+}
+
+export function setLetztesBackup(zeitpunkt: number): void {
+  write(KEYS.letztesBackup, zeitpunkt)
+}
+
+/* ------------- Scan -> Statistik Übernahme (einmalig abgeholt) ------------- */
+
+/** Vom Scan-Modus "Messprotokoll" hinterlegte Werte, die Statistik beim nächsten Öffnen übernimmt und dann löscht. */
+export function statistikUebernahmeAblegen(werte: number[]): void {
+  write(KEYS.statistikUebernahme, werte)
+}
+
+export function statistikUebernahmeAbholen(): number[] | null {
+  const werte = read<number[] | null>(KEYS.statistikUebernahme, null)
+  if (werte !== null) write(KEYS.statistikUebernahme, null)
+  return werte
 }
