@@ -38,6 +38,8 @@ const KEYS = {
   eigeneStoffe: 'rechenwerk:eigene-stoffe',
   letztesBackup: 'rechenwerk:letztes-backup',
   statistikUebernahme: 'rechenwerk:statistik-uebernahme',
+  baukastenKennlinie: 'rechenwerk:baukasten-kennlinie',
+  baukastenStraenge: 'rechenwerk:baukasten-straenge',
 } as const
 
 export function getFavoriten(): string[] {
@@ -449,4 +451,47 @@ export function statistikUebernahmeAbholen(): number[] | null {
   const werte = read<number[] | null>(KEYS.statistikUebernahme, null)
   if (werte !== null) write(KEYS.statistikUebernahme, null)
   return werte
+}
+
+/* ------------- Baukasten -> Pumpen-Betriebspunkt Übernahme (einmalig abgeholt) ------------- */
+
+export interface KennlinienPunkt {
+  v: string
+  h: string
+}
+
+export function kennlinieAblegen(punkte: KennlinienPunkt[]): void {
+  write(KEYS.baukastenKennlinie, punkte)
+}
+
+export function kennlinieAbholen(): KennlinienPunkt[] | null {
+  const punkte = read<KennlinienPunkt[] | null>(KEYS.baukastenKennlinie, null)
+  if (punkte !== null) write(KEYS.baukastenKennlinie, null)
+  return punkte
+}
+
+/** Gespeicherter Rohrleitungs-Baukasten-Strang (Medium, Volumenstrom, Elemente) - Inhalt bewusst
+ * als unknown typisiert, die konkrete Form (BaukastenElement[] etc.) kennt nur Baukasten.tsx. */
+export interface GespeicherterStrang {
+  id: string
+  name: string
+  daten: unknown
+  erstelltAm: number
+}
+
+export function getStraenge(): GespeicherterStrang[] {
+  return read<GespeicherterStrang[]>(KEYS.baukastenStraenge, [])
+}
+
+export function strangSpeichern(name: string, daten: unknown): GespeicherterStrang[] {
+  const neu: GespeicherterStrang = { id: neueId(), name, daten, erstelltAm: Date.now() }
+  const neue = [neu, ...getStraenge()]
+  write(KEYS.baukastenStraenge, neue)
+  return neue
+}
+
+export function strangLoeschen(id: string): GespeicherterStrang[] {
+  const neue = getStraenge().filter((s) => s.id !== id)
+  write(KEYS.baukastenStraenge, neue)
+  return neue
 }

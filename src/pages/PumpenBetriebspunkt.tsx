@@ -5,6 +5,7 @@ import { quadratischeRegression } from '../lib/statistik'
 import { WarningBanner } from '../components/WarningBanner'
 import { LineChart } from '../components/LineChart'
 import { useSetHeaderTitle } from '../lib/headerTitleContext'
+import { kennlinieAbholen } from '../lib/storage'
 
 interface PumpenPunkt {
   v: string
@@ -23,7 +24,7 @@ export function PumpenBetriebspunkt() {
   const [hStat, setHStat] = useState('5')
   const [vRef, setVRef] = useState('20')
   const [hVerlustRef, setHVerlustRef] = useState('3')
-  const [punkte, setPunkte] = useState<PumpenPunkt[]>(STANDARD_PUNKTE)
+  const [punkte, setPunkte] = useState<PumpenPunkt[]>(() => kennlinieAbholen() ?? STANDARD_PUNKTE)
 
   function punktAendern(i: number, patch: Partial<PumpenPunkt>) {
     setPunkte((ps) => ps.map((p, idx) => (idx === i ? { ...p, ...patch } : p)))

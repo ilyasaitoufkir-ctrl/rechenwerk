@@ -22,6 +22,8 @@ export type Route =
   | { name: 'projekt'; id: string }
   | { name: 'eigene-stoffe' }
   | { name: 'scan' }
+  | { name: 'baukasten' }
+  | { name: 'bilanz' }
 
 /** Tab-Wurzeln: großer Titel, keine Zurück-Navigation. */
 export const TAB_ROUTEN = ['home', 'rechner', 'assistent', 'bibliothek', 'einstellungen'] as const
@@ -44,6 +46,8 @@ const EINFACHE_ROUTEN = [
   'projekte',
   'eigene-stoffe',
   'scan',
+  'baukasten',
+  'bilanz',
 ] as const
 
 function parseHash(hash: string): Route {

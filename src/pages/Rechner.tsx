@@ -1,4 +1,4 @@
-import { Ruler, Scale, Gauge, Beaker, BarChart3, TrendingUp, Sigma, FlaskConical, ChevronRight } from 'lucide-react'
+import { Ruler, Scale, Gauge, Beaker, BarChart3, TrendingUp, Sigma, FlaskConical, ChevronRight, Boxes, Workflow } from 'lucide-react'
 import { alleFormeln, getKategorien } from '../formulas/registry'
 import { KategorieBild } from '../components/KategorieBild'
 import { navigiere, type Route } from '../lib/router'
@@ -14,6 +14,8 @@ const WERKZEUGE: { route: Route; icon: typeof Ruler; label: string }[] = [
   { route: { name: 'regression' }, icon: TrendingUp, label: 'Lineare Regression' },
   { route: { name: 'fehlerfortpflanzung' }, icon: Sigma, label: 'Fehlerfortpflanzung' },
   { route: { name: 'mccabe-thiele' }, icon: FlaskConical, label: 'McCabe-Thiele-Diagramm' },
+  { route: { name: 'baukasten' }, icon: Boxes, label: 'Rohrleitungs-Baukasten' },
+  { route: { name: 'bilanz' }, icon: Workflow, label: 'Bilanz-Fließbild' },
 ]
 
 const KATEGORIE_UNTERZEILE: Record<string, string> = {

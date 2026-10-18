@@ -31,6 +31,8 @@ const ROUTEN = [
   '/#/projekte',
   '/#/eigene-stoffe',
   '/#/scan',
+  '/#/baukasten',
+  '/#/bilanz',
   // Repräsentative Formel-Unterseiten: Standardformel, schichtfeld,
   // komponentenfeld, Druckgeräte-Banner, verschiedene Kategorien.
   '/#/formel/reynolds',

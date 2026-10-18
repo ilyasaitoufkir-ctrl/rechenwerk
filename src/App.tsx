@@ -37,6 +37,8 @@ const EigeneStoffe = lazy(() => import('./pages/EigeneStoffe').then((m) => ({ de
 const Projekte = lazy(() => import('./pages/Projekte').then((m) => ({ default: m.Projekte })))
 const ProjektDetail = lazy(() => import('./pages/ProjektDetail').then((m) => ({ default: m.ProjektDetail })))
 const Scan = lazy(() => import('./pages/Scan').then((m) => ({ default: m.Scan })))
+const Baukasten = lazy(() => import('./pages/Baukasten').then((m) => ({ default: m.Baukasten })))
+const BilanzFliessbild = lazy(() => import('./pages/BilanzFliessbild').then((m) => ({ default: m.BilanzFliessbild })))
 
 function Ladeanzeige() {
   return <div className="h-40 animate-pulse rounded-2xl bg-paper-200" />
@@ -88,6 +90,10 @@ function Seite() {
       return <ProjektDetail id={route.id} />
     case 'scan':
       return <Scan />
+    case 'baukasten':
+      return <Baukasten />
+    case 'bilanz':
+      return <BilanzFliessbild />
   }
 }
 

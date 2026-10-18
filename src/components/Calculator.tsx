@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, Info, Star, FolderPlus } from 'lucide-react'
+import { ChevronDown, Info, Star, FolderPlus, AlertTriangle } from 'lucide-react'
 import type { Formula, Variable } from '../types/formula'
 import { toSI, fromSI } from '../units'
 import { parseDecimal, formatNumber } from '../lib/format'
 import { getLetzteEingaben, setLetzteEingaben, verlaufEintragHinzufuegen } from '../lib/storage'
 import type { ProjektBerechnung } from '../lib/storage'
+import { loeseNachVariable, benoetigteEingaben, type AufloesungsErgebnis } from '../lib/loeser'
 import { useVerifizierung } from '../hooks/useVerifizierung'
 import { useFavoriten } from '../hooks/useFavoriten'
 import { useEinstellungen } from '../hooks/useEinstellungen'
@@ -21,6 +22,9 @@ import { KatexBlock } from './KatexBlock'
 import { DruckgeraeteBanner } from './DruckgeraeteBanner'
 import { KategorieBild } from './KategorieBild'
 import { ZuProjektHinzufuegenSheet } from './ZuProjektHinzufuegenSheet'
+import { GesuchtAuswahlSheet } from './GesuchtAuswahlSheet'
+import { ParameterstudieSheet } from './ParameterstudieSheet'
+import { VariantenVergleich } from './VariantenVergleich'
 
 interface GespeicherterZustand {
   ziel?: string
@@ -41,11 +45,17 @@ export function Calculator({ formel }: { formel: Formula }) {
     [formel.id],
   )
 
-  const [ziel, setZiel] = useState<string>(
-    gespeichert.ziel && formel.zielgroessen.includes(gespeichert.ziel)
+  const kannBeliebigAufloesen = !formel.schichtfeld && !formel.komponentenfeld
+
+  const [gesucht, setGesucht] = useState<string>(
+    gespeichert.ziel && formel.variablen.some((v) => v.id === gespeichert.ziel)
       ? gespeichert.ziel
       : formel.zielgroessen[0],
   )
+  const [gesuchtSheetOffen, setGesuchtSheetOffen] = useState(false)
+  const istAnalytisch = formel.zielgroessen.includes(gesucht)
+  const ziel = istAnalytisch ? gesucht : formel.zielgroessen[0]
+
   const [werte, setWerte] = useState<Record<string, string>>(gespeichert.werte ?? {})
   const [einheiten, setEinheiten] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = { ...gespeichert.einheiten }
@@ -73,12 +83,15 @@ export function Calculator({ formel }: { formel: Formula }) {
     () => new Set([ziel, ...(formel.zusatzAusgaben ?? [])]),
     [ziel, formel.zusatzAusgaben],
   )
-  const eingabeVariablen = formel.variablen.filter((v) => !ausgabeIds.has(v.id))
-  const ausgabeVariablen = formel.variablen.filter((v) => ausgabeIds.has(v.id))
+  const eingabeVariablen = istAnalytisch
+    ? formel.variablen.filter((v) => !ausgabeIds.has(v.id))
+    : benoetigteEingaben(formel, gesucht).map((id) => variableById(formel, id))
+  const ausgabeVariablen = istAnalytisch ? formel.variablen.filter((v) => ausgabeIds.has(v.id)) : []
+  const gesuchtVariable = variableById(formel, gesucht)
 
   useEffect(() => {
-    setLetzteEingaben(formel.id, { ziel, werte, einheiten })
-  }, [formel.id, ziel, werte, einheiten])
+    setLetzteEingaben(formel.id, { ziel: gesucht, werte, einheiten })
+  }, [formel.id, gesucht, werte, einheiten])
 
   const parsedWerte: Record<string, { wert: number; fehler?: string }> = {}
   for (const v of eingabeVariablen) {
@@ -112,6 +125,7 @@ export function Calculator({ formel }: { formel: Formula }) {
   let ergebnis: Record<string, number> | null = null
   let rechenFehler: string | null = null
   let bekanntSI: Record<string, number> = {}
+  let aufloesung: AufloesungsErgebnis | null = null
 
   if (alleAusgefuellt && !hatFehler) {
     try {
@@ -125,19 +139,29 @@ export function Calculator({ formel }: { formel: Formula }) {
           bekanntSI[v.id] = toSI(parsedWerte[v.id].wert, v.dimension, einheiten[v.id] ?? v.defaultUnit)
         }
       }
-      const roh = formel.compute(bekanntSI, ziel)
-      const nichtEndlich = Object.values(roh).some((x) => !Number.isFinite(x))
-      if (nichtEndlich) {
-        rechenFehler = 'Ergebnis ist nicht definiert (z. B. Division durch 0 oder Wert außerhalb des gültigen Bereichs).'
+      if (istAnalytisch) {
+        const roh = formel.compute(bekanntSI, ziel)
+        const nichtEndlich = Object.values(roh).some((x) => !Number.isFinite(x))
+        if (nichtEndlich) {
+          rechenFehler = 'Ergebnis ist nicht definiert (z. B. Division durch 0 oder Wert außerhalb des gültigen Bereichs).'
+        } else {
+          ergebnis = roh
+        }
       } else {
-        ergebnis = roh
+        aufloesung = loeseNachVariable(formel, gesucht, bekanntSI)
+        if (aufloesung.fehler && aufloesung.kandidaten.length === 0) {
+          rechenFehler = aufloesung.fehler
+        }
       }
     } catch (e) {
       rechenFehler = e instanceof Error ? e.message : 'Unbekannter Fehler bei der Berechnung.'
     }
   }
 
-  const warnungen = ergebnis ? formel.warnungen?.(bekanntSI, ziel, ergebnis) ?? [] : []
+  const eindeutigerKandidat = aufloesung && aufloesung.kandidaten.length === 1 ? aufloesung.kandidaten[0] : null
+  const warnungen = ergebnis
+    ? formel.warnungen?.(bekanntSI, ziel, ergebnis) ?? []
+    : eindeutigerKandidat?.warnungen ?? []
   const empfehlung = ergebnis ? formel.empfehlung?.(ergebnis) : undefined
 
   const projektBerechnung: Omit<ProjektBerechnung, 'id'> | null = ergebnis
@@ -153,19 +177,36 @@ export function Calculator({ formel }: { formel: Formula }) {
         richtwert: formel.richtwert ?? false,
         zeitpunkt: Date.now(),
       }
-    : null
+    : eindeutigerKandidat
+      ? {
+          formelId: formel.id,
+          formelName: formel.name,
+          kategorie: formel.kategorie,
+          bekannt: { ...bekanntSI, [gesucht]: eindeutigerKandidat.wert },
+          ziel: gesucht,
+          ergebnis: { [gesucht]: eindeutigerKandidat.wert },
+          quelle: formel.quelle,
+          verifiziert: verifizierungen[formel.id]?.verifiziert ?? false,
+          richtwert: formel.richtwert ?? false,
+          zeitpunkt: Date.now(),
+        }
+      : null
 
   const bekanntSIKey = JSON.stringify(bekanntSI)
   useEffect(() => {
-    if (!ergebnis) return
+    if (!ergebnis && !eindeutigerKandidat) return
     const timeout = setTimeout(() => {
-      verlaufEintragHinzufuegen({
-        formelId: formel.id,
-        formelName: formel.name,
-        bekannt: bekanntSI,
-        ziel,
-        ergebnis,
-      })
+      verlaufEintragHinzufuegen(
+        ergebnis
+          ? { formelId: formel.id, formelName: formel.name, bekannt: bekanntSI, ziel, ergebnis }
+          : {
+              formelId: formel.id,
+              formelName: formel.name,
+              bekannt: { ...bekanntSI, [gesucht]: eindeutigerKandidat!.wert },
+              ziel: gesucht,
+              ergebnis: { [gesucht]: eindeutigerKandidat!.wert },
+            },
+      )
     }, 900)
     return () => clearTimeout(timeout)
     // Protokolliert bewusst erst nach kurzer Pause, nicht bei jedem Tastendruck.
@@ -220,27 +261,31 @@ export function Calculator({ formel }: { formel: Formula }) {
 
       <KatexBlock latex={formel.latex} />
 
-      {formel.zielgroessen.length > 1 && (
+      {kannBeliebigAufloesen && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-semibold text-stone-500">Berechnen</span>
-          <div className="flex flex-wrap gap-2">
-            {formel.zielgroessen.map((zId) => {
-              const v = variableById(formel, zId)
-              return (
-                <button
-                  key={zId}
-                  onClick={() => setZiel(zId)}
-                  className={`rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors ${
-                    ziel === zId ? 'bg-accent-600 text-ink' : 'bg-paper-200 text-stone-600'
-                  }`}
-                >
-                  {v.name}
-                </button>
-              )
-            })}
-          </div>
+          <span className="text-[13px] font-semibold text-stone-500">Gesucht</span>
+          <button
+            onClick={() => setGesuchtSheetOffen(true)}
+            className="flex items-center justify-between rounded-xl bg-paper-200 px-3.5 py-2.5 text-left"
+          >
+            <span className="text-[15px] font-medium text-stone-900">{gesuchtVariable.name}</span>
+            <ChevronDown size={16} className="text-stone-400" />
+          </button>
+          {!istAnalytisch && (
+            <p className="flex items-center gap-1.5 text-[12px] text-stone-500">
+              <AlertTriangle size={13} className="shrink-0 text-amber-600" />
+              Wird numerisch aufgelöst (keine fertige Umkehrformel in der Bibliothek).
+            </p>
+          )}
         </div>
       )}
+      <GesuchtAuswahlSheet
+        offen={gesuchtSheetOffen}
+        onClose={() => setGesuchtSheetOffen(false)}
+        formel={formel}
+        gesucht={gesucht}
+        onSelect={setGesucht}
+      />
 
       <div className="flex flex-col gap-4">
         {eingabeVariablen.map((v) => {
@@ -314,17 +359,74 @@ export function Calculator({ formel }: { formel: Formula }) {
           />
         ))}
 
+      {eindeutigerKandidat && (
+        <ResultDisplay
+          variable={gesuchtVariable}
+          wertSI={eindeutigerKandidat.wert}
+          einheit={einheiten[gesucht] ?? gesuchtVariable.defaultUnit}
+          onEinheitChange={(e) => setEinheiten((eh) => ({ ...eh, [gesucht]: e }))}
+          signifikanteStellen={signifikanteStellen}
+          gross
+          onUebernehmen={() => setTransfer({ dimension: gesuchtVariable.dimension, wertSI: eindeutigerKandidat.wert, herkunft: formel.name })}
+        />
+      )}
+
+      {aufloesung && aufloesung.kandidaten.length > 1 && (
+        <div className="flex flex-col gap-2 rounded-2xl bg-amber-50 p-3">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-amber-900">
+            <AlertTriangle size={15} />
+            Mehrdeutigkeit: {aufloesung.kandidaten.length} mögliche Lösungen gefunden
+          </p>
+          {aufloesung.kandidaten.map((k, i) => (
+            <div key={i} className="rounded-xl bg-paper-50 p-2.5">
+              <p className="tabular-nums text-[18px] font-semibold text-stone-900">
+                {formatNumber(fromSI(k.wert, gesuchtVariable.dimension, einheiten[gesucht] ?? gesuchtVariable.defaultUnit), signifikanteStellen)}{' '}
+                <span className="text-[13px] font-normal text-stone-500">{einheiten[gesucht] ?? gesuchtVariable.defaultUnit}</span>
+              </p>
+              {!k.gueltig && <p className="text-[12px] text-amber-800">Außerhalb des an der Größe hinterlegten Gültigkeitsbereichs.</p>}
+              {k.warnungen.map((w, j) => (
+                <p key={j} className="text-[12px] text-amber-800">
+                  {w}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
       {empfehlung && <WarningBanner nachrichten={[empfehlung]} variante="info" />}
       {warnungen.length > 0 && <WarningBanner nachrichten={warnungen} />}
 
-      {ergebnis && (
-        <button
-          onClick={() => setProjektSheetOffen(true)}
-          className="flex items-center justify-center gap-1.5 rounded-xl bg-paper-200 px-4 py-2.5 text-[14px] font-medium text-stone-700"
-        >
-          <FolderPlus size={16} />
-          Zu Projekt hinzufügen
-        </button>
+      {(ergebnis || eindeutigerKandidat) && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setProjektSheetOffen(true)}
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-paper-200 px-4 py-2.5 text-[14px] font-medium text-stone-700"
+          >
+            <FolderPlus size={16} />
+            Zu Projekt hinzufügen
+          </button>
+          {istAnalytisch && (
+            <>
+              <ParameterstudieSheet
+                formel={formel}
+                ziel={ziel}
+                eingabeVariablen={eingabeVariablen}
+                werte={werte}
+                einheiten={einheiten}
+                ausgabeVariablen={ausgabeVariablen}
+              />
+              <VariantenVergleich
+                formel={formel}
+                ziel={ziel}
+                eingabeVariablen={eingabeVariablen}
+                werte={werte}
+                einheiten={einheiten}
+                ergebnisSI={ergebnis}
+              />
+            </>
+          )}
+        </div>
       )}
 
       <button
@@ -339,7 +441,7 @@ export function Calculator({ formel }: { formel: Formula }) {
         <div className="flex flex-col gap-4 rounded-2xl bg-paper-200 p-4 text-[14px]">
           <section>
             <h2 className="mb-1 font-semibold text-stone-800">Eingesetzte Werte</h2>
-            {ergebnis ? (
+            {ergebnis || eindeutigerKandidat ? (
               <ul className="flex flex-col gap-1">
                 {eingabeVariablen.map((v) => (
                   <li key={v.id} className="flex justify-between gap-2 text-stone-600">
@@ -364,9 +466,32 @@ export function Calculator({ formel }: { formel: Formula }) {
                     </span>
                   </li>
                 ))}
+                {eindeutigerKandidat && (
+                  <li className="flex justify-between gap-2 border-t border-paper-200 pt-1 font-medium text-stone-800">
+                    <span>{gesuchtVariable.name}</span>
+                    <span className="tabular-nums">
+                      {formatNumber(fromSI(eindeutigerKandidat.wert, gesuchtVariable.dimension, einheiten[gesucht] ?? gesuchtVariable.defaultUnit), signifikanteStellen)}{' '}
+                      {einheiten[gesucht] ?? gesuchtVariable.defaultUnit}
+                    </span>
+                  </li>
+                )}
               </ul>
             ) : (
               <p className="text-stone-500">Noch kein vollständiges Ergebnis.</p>
+            )}
+            {eindeutigerKandidat && (
+              <p className="mt-2 text-[13px] text-stone-500">
+                Numerisch gelöst (Brent-Verfahren), Kontrolle: Vorwärtsrechnung mit {gesuchtVariable.name} ={' '}
+                {formatNumber(fromSI(eindeutigerKandidat.wert, gesuchtVariable.dimension, einheiten[gesucht] ?? gesuchtVariable.defaultUnit), signifikanteStellen)}{' '}
+                {einheiten[gesucht] ?? gesuchtVariable.defaultUnit} ergibt{' '}
+                {Object.entries(eindeutigerKandidat.kontrolle)
+                  .map(([id, wertSI]) => {
+                    const v = variableById(formel, id)
+                    return `${v.name} = ${formatNumber(fromSI(wertSI, v.dimension, einheiten[id] ?? v.defaultUnit), signifikanteStellen)} ${einheiten[id] ?? v.defaultUnit}`
+                  })
+                  .join(', ')}
+                .
+              </p>
             )}
           </section>
 

@@ -18,6 +18,8 @@ const ROUTEN = [
   '/#/projekte',
   '/#/eigene-stoffe',
   '/#/scan',
+  '/#/baukasten',
+  '/#/bilanz',
   '/#/formel/reynolds',
   '/#/formel/zylinderschale-ad2000-b1',
 ]
